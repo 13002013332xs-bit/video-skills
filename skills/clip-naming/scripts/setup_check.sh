@@ -43,24 +43,35 @@ if [ -f "$ADAPTER" ]; then say_ok "capcut-mate 适配层"; else
   say_bad "capcut-mate 适配层不在默认位置" "见 skills/short-video-production/references/jianying-draft.md，或把 \$GEN 改到你的路径"
 fi
 
-# 4) 剪映草稿目录
-DRAFTS="$HOME/Movies/JianyingPro/User Data/Projects/com.lveditor.draft"
+# 4) 路径配置（脚本都从这里读目录）
+CFG="$HOME/.config/clip-pipeline/config.json"
+CFGTOOL="$(cd "$(dirname "$0")" && pwd)/pipeline_config.py"
+if [ -f "$CFG" ]; then
+  say_ok "路径配置（$CFG）"
+  DRAFTS="$(python3 "$CFGTOOL" jianying_drafts 2>/dev/null)"
+  POOL="$(python3 "$CFGTOOL" videos_root 2>/dev/null)"
+else
+  say_warn "还没配置自己的目录（素材根目录 / 剪映草稿目录 / capcut-mate 路径）" \
+           "跑：python3 \"$CFGTOOL\" --init   （会一项一项问你）"
+  DRAFTS="$HOME/Movies/JianyingPro/User Data/Projects/com.lveditor.draft"
+  POOL="$HOME/Desktop/短视频素材"
+fi
+
+# 4.5) 剪映草稿目录
 if [ -d "$DRAFTS" ]; then say_ok "剪映草稿目录"; else
   say_warn "剪映草稿目录不存在（未装剪映或路径不同）" "装剪映专业版；或改脚本里的 DRAFTS/--drafts-dir"
 fi
 
 # 5) 素材来源
-POOL="$HOME/Desktop/短视频素材"
 if [ -d "$POOL" ]; then say_ok "本地素材目录 $POOL"; else
   say_warn "本地素材目录不存在" "建一个，或改脚本里的 ROOT/POOL 到你自己的素材位置"
 fi
-for p in "$HOME/Documents/Codex"; do :; done
 echo "  ℹ️  飞书素材库另有要求：需要你自己的自建应用 + OAuth 授权（见 references/material-sourcing.md）"
 
 # 6) 路径提醒
 echo
-echo "  ℹ️  脚本里的绝对路径（项目目录/素材池/草稿目录）如果和你机器不一致，要改："
-echo "     grep -rn \"/Users/\" <技能目录>/scripts | head"
+echo "  ℹ️  还有个别脚本保留了作者示例路径，如与自己机器不符就改："
+echo "     grep -rn \"/Users/\" <技能目录>/scripts | head -20"
 
 echo
 echo "==============================================="

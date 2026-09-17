@@ -36,6 +36,16 @@ bash <本技能目录>/scripts/setup_check.sh      # 若该脚本不存在，就
 
 脚本里的绝对路径（素材目录、收件夹）如果和用户机器不一致，先改成他自己的，再往下走。
 
+**更好的做法：问用户要目录，写进统一配置**（脚本会自动读，不用改代码）：
+
+```bash
+python3 <本技能目录>/scripts/pipeline_config.py --init   # 一项一项问；也可直接编辑 ~/.config/clip-pipeline/config.json
+python3 <本技能目录>/scripts/pipeline_config.py --show   # 查看当前配置
+```
+
+要问的目录：**素材根目录**（放 `开头/中间/结尾` 和 `未命名上传`）、**剪映草稿目录**、
+**capcut-mate 的 `plan_to_draft.py` 路径**、（可选）素材池/工作目录。
+
 ## 流程
 
 1. **抽帧看全片**：`scripts/caption_clip.py` 抽帧覆盖整段，一次调用把这一段的帧全部交给视觉模型，输出结构化字段（画面主角/看到的东西/时间线/主体/动作/部位/结果/视角/场景/是否演戏/是否引下单/**简短命名**/把握度）。

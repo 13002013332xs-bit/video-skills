@@ -52,8 +52,25 @@ bash <本技能目录>/scripts/setup_check.sh
 
 ### 路径通用化
 
-技能脚本里保留了作者的绝对路径（`/Users/...`）。**新用户第一次用时，先确认这几处是否指向他自己的目录**，
-不一致就改；改完再跑一次 `setup_check.sh` 确认全绿：
+脚本不再写死某个人的路径，而是从一个配置里读。**第一次用（或换机器）时，主动问用户这几个目录在哪，然后写进配置：**
+
+1. **素材根目录**（里面有 `开头/中间/结尾` 和 `未命名上传`）—— 例：`~/Desktop/短视频素材`
+2. **剪映草稿目录** —— macOS 默认 `~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft`
+3. **capcut-mate 的 `plan_to_draft.py` 路径**（生成剪映草稿用；他没有就按 `references/jianying-draft.md` 装）
+4. （可选）**素材池目录**、**工作目录**
+
+问完这样写（或直接跑交互式初始化，它会一项一项问）：
+
+```bash
+python3 <本技能目录>/scripts/pipeline_config.py --init
+# 或者非交互：直接写入 ~/.config/clip-pipeline/config.json
+```
+
+配置就存在 `~/.config/clip-pipeline/config.json`，也支持环境变量覆盖
+（`CLIP_VIDEOS_ROOT` / `CLIP_JIANYING_DRAFTS` / `CLIP_CAPCUT_ADAPTER` / `CLIP_POOL` / `CLIP_PROJECT_DIR`）。
+查当前配置：`python3 <本技能目录>/scripts/pipeline_config.py --show`
+
+个别脚本里仍留有作者示例路径，如与自己机器不符就改：
 
 ```bash
 grep -rn "/Users/" <本技能目录>/scripts | head -20

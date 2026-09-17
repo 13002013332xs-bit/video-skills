@@ -15,6 +15,13 @@ import re
 import shutil
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    from pipeline_config import get as cfg_get          # 統一的路徑配置
+except Exception:                                        # 沒裝配置模組也能跑
+    def cfg_get(_k):
+        return ""
+
 # 视觉字段 → 用户的写法
 ACTION_MAP = [
     ("假吸", "假吸"), ("准备", "准备前吸"), ("指功能", "指功能"), ("指", "指功能"),
@@ -187,7 +194,7 @@ def main() -> None:
     ap.add_argument("target", help="描述 json 或包含 json 的文件夹")
     ap.add_argument("--product", default="", help="磁吸灯 / 多功能笔 / 肌理画（仅用于提示）")
     ap.add_argument("--date", default=dt.date.today().strftime("%Y%m%d"))
-    ap.add_argument("--dest", default=os.path.expanduser("~/Desktop/短视频素材"))
+    ap.add_argument("--dest", default=cfg_get("videos_root") or os.path.expanduser("~/Desktop/短视频素材"))
     ap.add_argument("--suffix", default="", help="文件名后缀，例如 [云端] / [本机]")
     ap.add_argument("--archive", default="", help="命名完成后，把原片移到这个目录（不再留在收件夹）")
     ap.add_argument("--dry-run", action="store_true")

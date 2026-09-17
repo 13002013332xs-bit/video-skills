@@ -32,7 +32,14 @@
 
 ## 需要准备的环境
 
-**先跑自检**：
+**第一次用：先让 Codex 问你几个目录在哪**（素材根目录、剪映草稿目录、capcut-mate 位置），
+它会写进 `~/.config/clip-pipeline/config.json`，之后脚本都从这里读，不用改代码：
+
+```bash
+python3 skills/short-video-production/scripts/pipeline_config.py --init
+```
+
+**然后跑自检**：
 
 ```bash
 bash skills/short-video-production/scripts/setup_check.sh

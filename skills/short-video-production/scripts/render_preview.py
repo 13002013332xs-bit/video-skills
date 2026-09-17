@@ -6,8 +6,16 @@ import subprocess
 import sys
 
 FFMPEG = os.path.expanduser("~/.local/bin/ffmpeg")
-DRAFTS = "/Users/wangsi/Movies/JianyingPro/User Data/Projects/com.lveditor.draft"
-OUT = "/Users/wangsi/Documents/Codex/2026-08-05/qin/outputs"
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    from pipeline_config import get as cfg_get
+except Exception:
+    def cfg_get(_k):
+        return ""
+DRAFTS = cfg_get("jianying_drafts") or os.path.expanduser(
+    "~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft")
+OUT = os.path.join(cfg_get("project_dir"), "outputs") if cfg_get("project_dir") \
+    else os.path.expanduser("~/Desktop/视频输出")
 
 
 def render(draft_name):

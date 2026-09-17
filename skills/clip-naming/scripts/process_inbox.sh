@@ -5,7 +5,7 @@ set -uo pipefail
 
 PRODUCT="${1:-磁吸灯}"
 INBOX_NAME="未命名上传"
-ROOT="$HOME/Desktop/短视频素材"
+ROOT="$(python3 "$SKILL/pipeline_config.py" videos_root 2>/dev/null || echo "$HOME/Desktop/短视频素材")"
 VENV="$HOME/.local/opt/clip-naming/venv/bin/python"
 SKILL="$HOME/.codex/skills/clip-naming/scripts"
 MODEL="${CLIP_VLM_API_MODEL:-qwen3-vl-plus}"
