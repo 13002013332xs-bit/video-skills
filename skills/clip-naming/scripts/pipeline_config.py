@@ -33,6 +33,47 @@ ENV = {
     "project_dir": "CLIP_PROJECT_DIR",
 }
 
+# 常見位置：先自己找，找不到才問用戶
+CANDIDATES = {
+    "jianying_drafts": [
+        "~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft",
+        "~/Movies/JianyingPro/User Data/Projects",
+        "~/Movies/剪映/User Data/Projects",
+    ],
+    "capcut_adapter": [
+        "~/Developer/capcut-mate/local/plan_to_draft.py",
+        "~/capcut-mate/local/plan_to_draft.py",
+        "~/Documents/capcut-mate/local/plan_to_draft.py",
+        "~/.local/opt/capcut-mate/local/plan_to_draft.py",
+    ],
+    "videos_root": [
+        "~/Desktop/短视频素材",
+        "~/Desktop/素材",
+        "~/Movies/短视频素材",
+        "~/Desktop/2026-09-16",
+    ],
+}
+
+
+def autodetect(key: str) -> str:
+    """自動找常見位置；找不到再去找特徵檔（例如 plan_to_draft.py）。"""
+    for cand in CANDIDATES.get(key, []):
+        p = os.path.expanduser(cand)
+        if os.path.exists(p):
+            return p
+    if key == "capcut_adapter":
+        for root in ("~/Developer", "~/Documents", "~/.local/opt", "~"):
+            base = os.path.expanduser(root)
+            if not os.path.isdir(base):
+                continue
+            for cur, dirs, files in os.walk(base):
+                if cur.count(os.sep) - base.count(os.sep) > 4:
+                    dirs[:] = []
+                    continue
+                if "plan_to_draft.py" in files:
+                    return os.path.join(cur, "plan_to_draft.py")
+    return ""
+
 
 def load() -> dict:
     cfg = dict(DEFAULTS)
@@ -44,7 +85,15 @@ def load() -> dict:
     for key, env in ENV.items():
         if os.environ.get(env):
             cfg[key] = os.environ[env]
-    return {k: os.path.expanduser(v) if isinstance(v, str) else v for k, v in cfg.items()}
+    out = {}
+    for k, v in cfg.items():
+        v = os.path.expanduser(v) if isinstance(v, str) else v
+        if not v or not os.path.exists(v):        # 沒配或配的路徑不存在 → 自己找找看
+            found = autodetect(k)
+            if found:
+                v = found
+        out[k] = v
+    return out
 
 
 def get(key: str) -> str:

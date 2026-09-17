@@ -36,15 +36,16 @@ bash <本技能目录>/scripts/setup_check.sh      # 若该脚本不存在，就
 
 脚本里的绝对路径（素材目录、收件夹）如果和用户机器不一致，先改成他自己的，再往下走。
 
-**更好的做法：问用户要目录，写进统一配置**（脚本会自动读，不用改代码）：
+**更好的做法：让脚本自己找，找不到才问用户**（结果写进统一配置，脚本自动读，不用改代码）：
 
 ```bash
-python3 <本技能目录>/scripts/pipeline_config.py --init   # 一项一项问；也可直接编辑 ~/.config/clip-pipeline/config.json
+python3 <本技能目录>/scripts/pipeline_config.py --show   # 先看自动探測結果（剪映目錄、capcut-mate 都會自己找）
+python3 <本技能目录>/scripts/pipeline_config.py --init   # 只有探不到的才需要問用戶／手動填
 python3 <本技能目录>/scripts/pipeline_config.py --show   # 查看当前配置
 ```
 
-要问的目录：**素材根目录**（放 `开头/中间/结尾` 和 `未命名上传`）、**剪映草稿目录**、
-**capcut-mate 的 `plan_to_draft.py` 路径**、（可选）素材池/工作目录。
+只有这几样**探测不到**时才需要问用户：素材根目录（放 `开头/中间/结尾` 和 `未命名上传`）、
+剪映草稿目录、capcut-mate 的 `plan_to_draft.py` 路径、（可选）素材池/工作目录。
 
 ## 流程
 

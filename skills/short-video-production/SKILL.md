@@ -52,7 +52,12 @@ bash <本技能目录>/scripts/setup_check.sh
 
 ### 路径通用化
 
-脚本不再写死某个人的路径，而是从一个配置里读。**第一次用（或换机器）时，主动问用户这几个目录在哪，然后写进配置：**
+脚本不再写死某个人的路径。**顺序是：先自己探测 → 探测不到才问用户。**
+
+自动探测规则（`pipeline_config.py` 里的 `CANDIDATES` / `autodetect()`）：
+剪映草稿目录找 `~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft`；
+capcut-mate 会去 `~/Developer`、`~/Documents`、`~/.local/opt` 里搜 `plan_to_draft.py`；
+素材根目录找 `~/Desktop/短视频素材` 等。**只有都找不到时，才问用户：**
 
 1. **素材根目录**（里面有 `开头/中间/结尾` 和 `未命名上传`）—— 例：`~/Desktop/短视频素材`
 2. **剪映草稿目录** —— macOS 默认 `~/Movies/JianyingPro/User Data/Projects/com.lveditor.draft`
