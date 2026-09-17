@@ -10,6 +10,55 @@ metadata:
 把"一条参考视频"变成"一批可交付、可编辑的成片"。这条流水线整合了：参考视频拆解、
 本地转写、素材获取、按画面语义选片、ffmpeg 精剪与剪映草稿交付、以及验收/清理规范。
 
+## ⚠️ 开工前必做：环境自检（第一次用一定要跑）
+
+**每次接到任务（尤其是新用户第一次用），先跑自检，不要直接开始剪：**
+
+```bash
+bash <本技能目录>/scripts/setup_check.sh
+```
+
+它会逐项检查：ffmpeg/ffprobe、yt-dlp、python3、**视觉模型 key（"眼睛"）**、capcut-mate 适配层、
+剪映草稿目录、素材目录。**任何一项是 ❌，就先停下来，把下面这段原样发给用户，等他配好再继续。**
+
+### 如果缺"眼睛"（最常见）——把下面这段话发给用户
+
+> 我还缺一双"眼睛"：我本身看不见画面，需要接一个视觉模型才能看懂参考视频和你的素材。
+> 请你花 3 分钟配一次（免费额度够跑很久）：
+>
+> 1. 打开 https://bailian.console.aliyun.com/ ，登录/注册阿里云（需实名），开通「百炼」
+> 2. 左侧找「API-KEY」→ 创建我的 API-KEY → 复制 `sk-` 开头那串
+> 3. 在终端执行（把 `你的key` 换成刚复制的）：
+>    ```bash
+>    mkdir -p ~/.local/opt/clip-naming
+>    printf '%s\n' '你的key' > ~/.local/opt/clip-naming/dashscope.key
+>    chmod 600 ~/.local/opt/clip-naming/dashscope.key
+>    ```
+> 4. 顺手在控制台打开「免费额度用完即停」，防止意外扣费
+> 5. 配好跟我说一声，我重新自检一次就开始剪
+>
+> 费用参考：一条素材约 0.005 元、一条完整成片约 0.1–0.3 元；新用户每个模型送 100 万 token（90 天）。
+> 不想用云端的，也可以选本机模型（要 Apple Silicon，跑 `scripts/setup_check.sh` 后会提示）。
+
+### 其它缺项怎么引导
+
+| 缺什么 | 告诉用户 |
+|---|---|
+| ffmpeg / ffprobe | 装一次即可（macOS 可用静态包放 `~/.local/bin`，或 `brew install ffmpeg`） |
+| yt-dlp | `pipx install yt-dlp` 或 `pip install yt-dlp` |
+| capcut-mate 适配层 | 按 `references/jianying-draft.md` 获取 `plan_to_draft.py`；如路径不同，改脚本里的 `GEN` |
+| 剪映草稿目录 | 装剪映专业版；或改脚本里的草稿目录参数 |
+| 素材目录 | 建一个素材文件夹，或改脚本里的 `ROOT`/`POOL` 指到自己的素材 |
+
+### 路径通用化
+
+技能脚本里保留了作者的绝对路径（`/Users/...`）。**新用户第一次用时，先确认这几处是否指向他自己的目录**，
+不一致就改；改完再跑一次 `setup_check.sh` 确认全绿：
+
+```bash
+grep -rn "/Users/" <本技能目录>/scripts | head -20
+```
+
 ## 不可违背的规则（先读这段）
 
 **操作安全**
