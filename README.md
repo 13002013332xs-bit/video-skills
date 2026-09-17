@@ -32,13 +32,46 @@
 
 ## 需要准备的环境
 
-- `ffmpeg` / `ffprobe`（视频处理）
-- `yt-dlp`（下载参考视频）
-- Python 3
-- **云端视觉模型（推荐）**：阿里云百炼 API-KEY（`sk-` 开头），存到
-  `~/.local/opt/clip-naming/dashscope.key`（`chmod 600`）；新用户每个模型送 100 万 token
-- **可选本机视觉模型**：`bash skills/clip-naming/scripts/setup_vision.sh`（Apple Silicon，约 2GB）
-- **剪映草稿生成**：capcut-mate 的本地适配层 `plan_to_draft.py`（见 `skills/short-video-production/references/jianying-draft.md`）
+**先跑自检**：
+
+```bash
+bash skills/short-video-production/scripts/setup_check.sh
+```
+
+会逐项告诉你缺什么、怎么补。总共有这几样：
+
+| 需要什么 | 作用 | 怎么补 |
+|---|---|---|
+| `ffmpeg` / `ffprobe` | 抽帧、转码、拼接 | 装一次即可 |
+| `yt-dlp` | 下载参考视频（TikTok/YouTube/抖音等） | `pipx install yt-dlp` |
+| Python 3 | 跑脚本 | 3.10+ |
+| **百炼 API key（"眼睛"）** | 看懂画面（分镜、选片都靠它） | 见下节 |
+| capcut-mate 适配层 | 生成可编辑的剪映草稿 | 见 `references/jianying-draft.md` |
+| 剪映专业版 | 最终编辑/导出 | 装剪映 |
+| 素材来源 | 你拍的片段（本地文件夹或飞书素材库） | 自己的素材 |
+
+### 配置"眼睛"（必须）
+
+1. 去 <https://bailian.console.aliyun.com/> 开通阿里云百炼 → 创建 API-KEY（`sk-` 开头）
+2. 存到本机：
+
+```bash
+mkdir -p ~/.local/opt/clip-naming
+printf '%s\n' '你的sk-key' > ~/.local/opt/clip-naming/dashscope.key
+chmod 600 ~/.local/opt/clip-naming/dashscope.key
+```
+
+3. （可选）本机模型（Apple Silicon，约 2GB，无需联网）：
+
+```bash
+bash skills/clip-naming/scripts/setup_vision.sh
+```
+
+### 配好之后，一句话就能干活
+
+> "照着这个视频剪：" + 链接
+
+也就是：下载参考视频 → 自动切镜头 → 逐拍看懂画面 → 从素材库选对应片段 → 出剪映草稿 → 渲染预览。
 
 ## 注意
 
