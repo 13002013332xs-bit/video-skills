@@ -83,6 +83,21 @@ grep -rn "/Users/" <本技能目录>/scripts | head -20
 
 ## 不可违背的规则（先读这段）
 
+**素材不能吃老本（用户明确要求）**
+10. **每出一支新视频前，先查用片台账**：`python3 scripts/ledger.py --show`。
+    选片一律用 `scripts/pick_fresh.py`（优先"从没用过"的素材），**不要凭记忆挑顺手的**——
+    否则不同结构/脚本的视频也会撞画面，用户会看出来。
+11. **同一支视频内不重复**；跨视频目标 **0 重复**；实在要用旧素材，必须标明"复用"并说明原因。
+12. 出片后**立刻登记台账**（`ledger.py --record-plan`），否则下次还会撞。
+13. 素材不够时**先说"池子见底了，需要补素材"**，不要偷偷复用。
+
+**新素材怎么进流程**
+- **本地新拍**：用户把片段丢进 `~/Desktop/短视频素材/<日期>/未命名上传/` → 双击「命名并分类.command」
+  → 命名后进分类夹；选片时用 `pick_fresh.py --source <分类目录>` 把分类夹也当候选（新片段自动优先）。
+- **飞书新素材**：`scripts/feishu_sync.py --inventory <清单.json> --dest <素材池> --report` 先看有没有新增，
+  再去掉 `--report` 只下载新增的（本地已下载清单记在 `<素材池>/_已下载清单.json`）。
+  飞书令牌 2 小时过期——要长期自动发现新素材，最好让用户把应用加为文件夹协作者（应用身份永久有效）。
+
 **操作安全**
 1. 只新增，不覆盖；重名自动加后缀。
 2. 不硬删任何东西（素材、草稿、云端文件）。要清理就**移动到回收目录**（`<项目>/_回收_XXX_日期/`），
@@ -152,9 +167,24 @@ grep -rn "/Users/" <本技能目录>/scripts | head -20
 | 需要什么 | 读哪个 |
 |---|---|
 | 拆片、镜头评分、多平台下载 | `references/reference-analysis.md` |
+| **参考视频五维度拆解 + 运动类型判定**（照参考片剪必读） | `references/reference-analysis-5aspect.md` |
 | 飞书/OAuth、素材下载整理 | `references/material-sourcing.md` |
 | 选片硬规则与去重 | `references/selection-rules.md` |
 | 剪映草稿结构、沙盒、增删 | `references/jianying-draft.md` |
 | ffmpeg 生产正确性、动画/字幕 | `references/ffmpeg-correctness.md` |
 | 本地转写、词级时间戳、缓存 | `references/transcription.md` |
 | 效率坑与权限坑 | `references/pitfalls.md` |
+| **出片自检协议（准确/完整/可执行）** | `references/self-review.md` |
+| **批量出片一致性规则** | `references/batch-consistency.md` |
+| **某一拍找不到画面时怎么办** | `references/material-gaps.md` |
+
+## 照参考视频剪片的标准流程（2026-09-18 定稿）
+
+1. **拆参考视频**：切镜头 → 转写脚本 → 逐拍五维度拆解（`reference-analysis-5aspect.md`），先讲给用户听
+2. **按时间轴对齐**：脚本哪一句 ↔ 参考视频哪几拍（**不要按序号硬配**，会错位）
+3. **选片**：类别锁定（c=开头/中间/结尾）+ 关键词（含 `折扣|9.99|30&20|50%` 这类价格词）
+   + 台账（`pick_fresh.py`，优先没用过的）
+4. **看图验证**：候选抽帧让视觉模型对照参考画面打分，挑最贴合的；同一脚本段跨多拍时**每拍用不同素材**
+5. **出片**：按参考视频的真实镜头时长分配；批量时套用统一模板（`batch-consistency.md`）
+6. **自检**：成片逐拍打分（`self-review.md`），<0.6 的列出来给改法；改不动的写进报告
+7. **交付**：草稿 + 预览 + 自检报告 + 用片台账更新

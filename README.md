@@ -30,6 +30,12 @@
 --repo <owner>/<repo> --path skills/short-video-production
 ```
 
+## 方法论来源
+
+参考视频拆解（五维度）、出片自检协议、批量一致性规则、素材缺口决策这四份参考文档，
+思路参考了开源项目 **OpenMontage**（AGPL-3.0，github.com/calesthio/OpenMontage）的做法，
+但**内容是按我们自己的流程重写的**（未复制其文件，无许可证传染）。
+
 ## 需要准备的环境
 
 **第一次用：先让 Codex 问你几个目录在哪**（素材根目录、剪映草稿目录、capcut-mate 位置），
