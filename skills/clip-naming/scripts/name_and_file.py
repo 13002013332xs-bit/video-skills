@@ -55,6 +55,42 @@ VIEW_MAP = {"特写": "（特）", "俯": "（俯）", "侧": "（侧）", "跟�
 SUBJECT_KEEP = re.compile(r"单灯|双灯|多灯|\d+只|\d+灯|双支|双色|黄笔|黑笔|触控笔|平面|立体|动物")
 
 
+def fit_name(name: str, limit: int = 20) -> str:
+    """把名字压到 limit 字以内，且不能切在词中间（在 +、括号、顿号处断）。"""
+    if len(name) <= limit:
+        return name
+    # 1) 先試著去掉場景/視角尾巴
+    parts = re.split(r"(?<=[）)])", name)
+    if len(parts) > 1 and len("".join(parts[:-1])) <= limit:
+        return "".join(parts[:-1])
+    # 2) 按 + 分段，逐段丟掉尾巴
+    segs = name.split("+")
+    while segs and len("+".join(segs)) > limit:
+        segs.pop()
+    if segs:
+        cand = "+".join(segs)
+        if len(cand) > 2:
+            return cand
+    # 3) 最後才硬切，但不要切出半個括號
+    cut = name[:limit]
+    if cut.count("（") > cut.count("）"):
+        cut = cut[: cut.rfind("（")]
+    return cut.rstrip("+（(") or name[:limit]
+
+
+def polish(name: str, scene: str = "", limit: int = 20) -> str:
+    """收尾潤色：把尾巴上的場景詞併進最後的括號；沒有場景/視角就補一個。"""
+    if not name:
+        return name
+    m = re.match(r"^(.*?)（([^）]{1,8})）([^（]{1,8})$", name)
+    if m:                                   # …（特）发动机 → …（特·发动机）
+        merged = f"{m.group(1)}（{m.group(2)}·{m.group(3)}）"
+        name = merged if len(merged) <= limit else m.group(1) + f"（{m.group(2)}）"
+    if scene and "（" not in name and len(name) + len(scene) + 2 <= limit:
+        name = f"{name}（{scene[:5]}）"
+    return name.rstrip("+·")
+
+
 def build_name(d: dict) -> str:
     parts: list[str] = []
     # 主角（不是产品本身时也照实写：指甲油瓶/手/扳手/发动机）
@@ -114,11 +150,12 @@ def build_name(d: dict) -> str:
     if given:
         given = re.sub(r"[，,。.;；]", "+", given)
         given = re.sub(r"\+{2,}", "+", given).strip("+")
-        if view and view not in given and len(given) + len(view) <= 16:
+        # 名字上限放寬到 20 字（用戶要求寫詳細，方便後期找素材）
+        if view and view not in given and len(given) + len(view) <= 20:
             given += view
-        elif not view and scene and len(given) + len(tail0) <= 16:
+        elif not view and scene and len(given) + len(tail0) <= 20:
             given += tail0
-        return given[:18] if given else "待命名"
+        return polish(fit_name(given, 20), scene, 20) if given else "待命名"
 
     # 画面主角不是磁吸灯（指甲油瓶/手/零件…）→ 直接用模型的一句话，最像人话
     lamp_like = any(k in (lead + subject + "".join(acts) + result) for k in ("灯", "吸", "磁"))
@@ -127,7 +164,7 @@ def build_name(d: dict) -> str:
     if not lamp_like and line:
         short = re.split(r"[，,。；;：:]", line)[0].strip()
         short = re.sub(r"^(画面里的|画面中)", "", short)
-        name = (short[:13] + tail)[:18]
+        name = polish(fit_name(short[:16] + tail, 20), scene, 20)
         return name or "待命名"
 
     # 组装：主体 + 动作 + 对象（对象一定要留住），再看长度决定要不要带括号
@@ -139,7 +176,7 @@ def build_name(d: dict) -> str:
     base = join(parts) or "待命名"
     if len(base) + len(tail) > 18:
         tail = ""
-    name = (base + tail)[:20]
+    name = polish(fit_name(base + tail, 20), scene, 20)
     if not name or name in ("待命名", "（特）"):
         # 兜底：直接用模型的一句话（截短）
         line = str(d.get("一句话") or "").strip()

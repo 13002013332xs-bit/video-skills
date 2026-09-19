@@ -36,6 +36,10 @@
 思路参考了开源项目 **OpenMontage**（AGPL-3.0，github.com/calesthio/OpenMontage）的做法，
 但**内容是按我们自己的流程重写的**（未复制其文件，无许可证传染）。
 
+另外，「解说/文案风格矩阵」与「混剪/音画同步规则」的思路参考了 **JJYB_AI 智剪**
+（github.com/jianjieyiban/JJYB_AI_VideoAutoCut，个人使用许可、禁止商用）——
+同样只借鉴方法论、未复制其代码，因此不受其许可约束。
+
 ## 需要准备的环境
 
 **第一次用：先让 Codex 问你几个目录在哪**（素材根目录、剪映草稿目录、capcut-mate 位置），

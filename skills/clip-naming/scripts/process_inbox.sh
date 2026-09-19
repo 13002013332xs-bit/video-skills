@@ -27,8 +27,7 @@ for inbox in "$ROOT"/*/"$INBOX_NAME"; do
     continue
   fi
   "$VENV" "$SKILL/name_and_file.py" "$parent/_描述_云端" \
-     --product "$PRODUCT" --suffix "[云端]" \
-     --dest "$ROOT" --date "$(basename "$parent")" \
+     --product "$PRODUCT"      --dest "$ROOT" --date "$(basename "$parent")" \
      --archive "$parent/_原片存档"
 done
 
