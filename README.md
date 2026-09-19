@@ -41,7 +41,7 @@
 同样只借鉴方法论、未复制其代码，因此不受其许可约束。
 
 新增两项能力：**高光片段自动选取**（`scripts/pick_highlights.py`，思路参考 Anil-matcha/AI-Youtube-Shorts-Generator，MIT）
-与**语音克隆/TTS 路线指南**（`references/voice-cloning.md`，含 MiMo MCP / voice-pro / clone-voice 三条路线与授权红线）。
+、**多视频结构挖掘→自动出脚本**（`scripts/mine_structures.py`）与**语音克隆/TTS 路线指南**（`references/voice-cloning.md`，含 MiMo MCP / voice-pro / clone-voice 三条路线与授权红线）。
 
 ## 需要准备的环境
 

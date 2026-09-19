@@ -181,6 +181,7 @@ grep -rn "/Users/" <本技能目录>/scripts | head -20
 | **混剪与音画同步规则（禁止定格凑时长）** | `references/mixing-rules.md` |
 | **从长素材里挑高光片段（8 类信号 + 自动找窗口）** | `references/highlight-picking.md` |
 | **语音克隆 / TTS 三条路线与授权红线** | `references/voice-cloning.md` |
+| **多视频共性挖掘 → 自动出脚本** | `references/script-generation.md` |
 
 ## 画面不够时的铁律（2026-09-19 补）
 
@@ -200,3 +201,5 @@ grep -rn "/Users/" <本技能目录>/scripts | head -20
 7. **交付**：草稿 + 预览 + 自检报告 + 用片台账更新
 8. **素材长/多时**：先跑 `scripts/pick_highlights.py` 找高光窗口，再进选片流程（省掉整段看的时间）
 9. **要统一音色**：按 `references/voice-cloning.md` 选路线（自己配音 → 直接用；要克隆 → API 或本地，且必须有授权）
+10. **要"照着一批爆款出脚本"**：先给每条参考视频跑 `analyze_reference.py`，再用 `scripts/mine_structures.py`
+    提炼共性（结构占比/固定顺序/钩子类型/卖点顺序）→ 生成脚本模板 → 按模板出片（详见 `references/script-generation.md`）
