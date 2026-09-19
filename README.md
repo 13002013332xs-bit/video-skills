@@ -40,6 +40,9 @@
 （github.com/jianjieyiban/JJYB_AI_VideoAutoCut，个人使用许可、禁止商用）——
 同样只借鉴方法论、未复制其代码，因此不受其许可约束。
 
+新增两项能力：**高光片段自动选取**（`scripts/pick_highlights.py`，思路参考 Anil-matcha/AI-Youtube-Shorts-Generator，MIT）
+与**语音克隆/TTS 路线指南**（`references/voice-cloning.md`，含 MiMo MCP / voice-pro / clone-voice 三条路线与授权红线）。
+
 ## 需要准备的环境
 
 **第一次用：先让 Codex 问你几个目录在哪**（素材根目录、剪映草稿目录、capcut-mate 位置），
