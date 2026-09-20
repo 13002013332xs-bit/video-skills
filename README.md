@@ -1,6 +1,6 @@
 # 视频技能包（Codex Skills）
 
-两个 Codex 技能，用于「照着参考视频剪带货短视频」和「给拍摄素材自动命名分类」。
+三个 Codex 技能：照着参考视频剪带货短视频、给拍摄素材自动命名分类、给 TikTok 达人批量发建联私信。
 
 ## 包含什么
 
@@ -8,6 +8,7 @@
 |---|---|
 | `skills/short-video-production` | 照着一条参考视频剪片：拆解镜头结构 → 从素材库选片 → 输出可在剪映里编辑的草稿 → 渲染预览 |
 | `skills/clip-naming` | 看完一整段拍摄素材，按你的命名习惯起名（0–15 字），并自动分到「开头/中间/结尾」 |
+| `skills/tiktok-dm-outreach` | 按名单给 TikTok 达人批量发建联私信：分批控节奏、顺带关注/点赞、话术轮换、发完逐条核对并出台账 |
 
 ## 安装
 
@@ -28,6 +29,7 @@
 ```
 --repo <owner>/<repo> --path skills/clip-naming
 --repo <owner>/<repo> --path skills/short-video-production
+--repo <owner>/<repo> --path skills/tiktok-dm-outreach
 ```
 
 ## 方法论来源
@@ -97,6 +99,8 @@ bash skills/clip-naming/scripts/setup_vision.sh
 
 - 脚本里的路径是原作者的绝对路径，**换机器要改**（参见每个技能里的说明）。
 - 本仓库不含任何账号凭据；用云端视觉模型时，画面帧会发送到对应服务商。
+- `tiktok-dm-outreach` 走浏览器自动化，需要你自己已经登录的 TikTok 会话；
+  仓库里不含任何账号、登录信息、达人名单或话术文案。
 
 ## 日常用法（clip-naming）
 
