@@ -96,3 +96,4 @@ python3 <本技能目录>/scripts/pipeline_config.py --show   # 查看当前配�
 
 - 命名语法与词表：`references/naming-grammar.md`
 - 分类判定规则：`references/taxonomy.md`
+- **多功能笔专用**（飞书 258 条实拍名反推的分类口径 + 词汇 + 句式）：`references/naming-多功能笔.md`
