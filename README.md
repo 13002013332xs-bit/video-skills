@@ -1,6 +1,7 @@
 # 视频技能包（Codex Skills）
 
-三个 Codex 技能：照着参考视频剪带货短视频、给拍摄素材自动命名分类、给 TikTok 达人批量发建联私信。
+四个 Codex 技能：照着参考视频剪带货短视频、给拍摄素材自动命名分类、给 TikTok 达人批量发建联私信、
+用即梦（Dreamina）出图出视频。
 
 ## 包含什么
 
@@ -9,6 +10,7 @@
 | `skills/short-video-production` | 照着一条参考视频剪片：拆解镜头结构 → 从素材库选片 → 输出可在剪映里编辑的草稿 → 渲染预览 |
 | `skills/clip-naming` | 看完一整段拍摄素材，按你的命名习惯起名（0–15 字），并自动分到「开头/中间/结尾」 |
 | `skills/tiktok-dm-outreach` | 按名单给 TikTok 达人批量发建联私信：分批控节奏、顺带关注/点赞、话术轮换、发完逐条核对并出台账 |
+| `skills/dreamina-cli` | 用即梦（Dreamina）CLI 出图 / 出视频：登录与授权、会话管理、任务历史、文生图 / 图生图 / 文生视频 / 首尾帧视频 |
 
 ## 安装
 
@@ -30,6 +32,7 @@
 --repo <owner>/<repo> --path skills/clip-naming
 --repo <owner>/<repo> --path skills/short-video-production
 --repo <owner>/<repo> --path skills/tiktok-dm-outreach
+--repo <owner>/<repo> --path skills/dreamina-cli
 ```
 
 ## 方法论来源
