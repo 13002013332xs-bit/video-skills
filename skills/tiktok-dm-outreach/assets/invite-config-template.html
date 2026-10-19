@@ -62,7 +62,7 @@
   <section class="invite-section" aria-labelledby="invite-conflict-heading">
     <h3 id="invite-conflict-heading">4　邀约重叠处理</h3>
     <div>旧邀约为“自动批＋当月日期”：从本次邀请名单移除对应达人，保留原邀约。</div>
-    <div class="text-small">按店铺日期判断当月；其他重叠按已确认规则处理。移除后重新核对实际人数。</div>
+    <div class="text-small">按店铺日期判断当月。当月其他非“自动批”邀约（包括手动）及非当月邀约：移动至本次。日期或身份不明先核对；移除后重新核对实际人数。</div>
   </section>
   <hr>
   <section class="invite-section" aria-labelledby="invite-dm-heading">
@@ -139,8 +139,7 @@
     }
     const sameMonth=month===date.getUTCMonth()+1;
     if (/^自动批/.test(value) && sameMonth) return 'remove_from_current';
-    if (!sameMonth) return 'move_to_current';
-    return 'pending';
+    return 'move_to_current';
   }
   function creatorAction(names,shopDate) {
     const actions=names.map(n=>conflictAction(n,shopDate));
@@ -264,7 +263,7 @@
   });
   $('invite-confirm').addEventListener('click',async()=>{
     const errors=R.validate(state,{requireAutomaticFields:false,requireZiniaoMessage:true});showErrors(errors);if(errors.length)return;
-    const configuration={...state,dateBasis:'紫鸟后台店铺日期',automaticFields:{language:'跟随本次达人筛选语言',email:'沿用紫鸟系统自带邮箱',phone:'留空',dates:'执行时读取店铺日期，截止加20天'},invitationName:state.language?R.inviteName(state.shopDate,state.language):null,expiresOn:R.endDate(state.shopDate),products:state.products.map(row=>({...row,name:catalog.get(row.id).name,standardRate:Number(row.standardRate).toFixed(2),adRate:row.adEnabled?Number(row.adRate).toFixed(2):null})),overlapPolicy:'旧邀约为自动批且属店铺当月时，从本次邀请移除对应达人；原邀约保留。其他冲突按已确认规则。'};
+    const configuration={...state,dateBasis:'紫鸟后台店铺日期',automaticFields:{language:'跟随本次达人筛选语言',email:'沿用紫鸟系统自带邮箱',phone:'留空',dates:'执行时读取店铺日期，截止加20天'},invitationName:state.language?R.inviteName(state.shopDate,state.language):null,expiresOn:R.endDate(state.shopDate),products:state.products.map(row=>({...row,name:catalog.get(row.id).name,standardRate:Number(row.standardRate).toFixed(2),adRate:row.adEnabled?Number(row.adRate).toFixed(2):null})),overlapPolicy:'同一达人任一旧邀约为自动批且属店铺当月时，优先从本次邀请移除对应达人，保留原邀约；当月其他非自动批（包括手动）及非当月邀约移动至本次。日期或身份不明先核对。'};
     save();
     if(!window.openai?.sendFollowUpMessage){$('invite-status').textContent='当前预览不支持提交到对话。';return;}
     const button=$('invite-confirm');button.disabled=true;$('invite-status').textContent='正在提交配置…';
