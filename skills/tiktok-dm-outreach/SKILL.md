@@ -12,6 +12,7 @@ metadata:
 - 紫鸟筛选、PPS或对话点选面板：读 [creator-filters.md](references/creator-filters.md)，复用其中的完整字段快照和面板。PPS不是后台原生项，`4.9 / 5.0`只读左边4.9；选4.5、4.6、4.7、4.8时排除4.9。
 - 紫鸟批量合作邀请、商品佣金、免费样品、重叠处理或邀请成功后的紫鸟私信：读 [invite-configuration.md](references/invite-configuration.md)，复用其中的邀约配置面板；日期沿用后台店铺日期，邀请文本与紫鸟私信独立确认。
 - 网页私信：当前优先路径为OpenCLI连接用户已登录Chrome，读 [execution.md](references/execution.md)。
+- 筛选时查看主页/视频：在电脑浏览器打开TikTok网页版，搜索完整用户名并核对身份后查看；不连接手机或打开镜像。
 - 手机镜像建联：读 [phone-outreach.md](references/phone-outreach.md)，核对当次实际可控性及速度验收。
 - 本技能仅保存稳定规则与公开选项；用户已确认的纠正同步项目规则和技能，公开副本去除账号、凭据及机器路径。
 
