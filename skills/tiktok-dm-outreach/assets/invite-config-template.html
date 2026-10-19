@@ -162,6 +162,8 @@
   const products=Array.isArray(data.products)?data.products:[];
   const catalog=new Map(products.map(p=>[p.id,p]));
   const stateType='ziniao-invitation-config-v1';
+  const writeToken='draft-'+Math.random().toString(36).slice(2);
+  let writeRevision=0;
   let state={shopDate:data.shopDate,language:data.language||'',email:data.contactEmail,phone:'',message:'',ziniaoMessage:'',contentType:'带货视频',provideSamples:true,sampleMode:'follow',products:[]};
   let pickerIDs=new Set(),page=1,pageSize=20,search='';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -178,10 +180,13 @@
     return true;
   }
   function snapshot() {
-    return {type:stateType,contextKey:data.contextKey,config:JSON.parse(JSON.stringify(state))};
+    return {type:stateType,contextKey:data.contextKey,writeToken,writeRevision,config:JSON.parse(JSON.stringify(state))};
   }
   function save() {
-    if (window.openai?.setWidgetState) window.openai.setWidgetState({modelContent:snapshot(),privateContent:null}).catch(()=>{});
+    if (window.openai?.setWidgetState) {
+      writeRevision++;
+      window.openai.setWidgetState({modelContent:snapshot(),privateContent:null}).catch(()=>{});
+    }
   }
   function updateHeader() {
     $('invite-name').textContent=R.inviteName(state.shopDate,state.language||'本次筛选语言')||'执行时自动生成';
@@ -273,9 +278,14 @@
     } catch(e) {$('invite-status').textContent='配置未提交成功，请重试。';}
     finally {button.disabled=false;}
   });
-  restore(window.openai?.widgetState);paint();
+  if(!restore(window.openai?.widgetState))restore(data.initialDraft);
+  paint();
   window.addEventListener('openai:set_globals',e=>{
-    const saved=e.detail?.globals?.widgetState;if(!saved||!restore(saved))return;paint();
+    const saved=e.detail?.globals?.widgetState;
+    const incoming=saved?.modelContent||saved;
+    if(incoming?.writeToken===writeToken && incoming.writeRevision<=writeRevision)return;
+    if(!saved||!restore(saved))return;
+    paint();
   });
 })();
 </script>
