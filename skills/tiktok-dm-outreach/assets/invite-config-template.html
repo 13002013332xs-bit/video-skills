@@ -273,7 +273,7 @@
     if(!window.openai?.sendFollowUpMessage){$('invite-status').textContent='当前预览不支持提交到对话。';return;}
     const button=$('invite-confirm');button.disabled=true;$('invite-status').textContent='正在提交配置…';
     try {
-      await window.openai.sendFollowUpMessage({title:'确认本次邀约配置',prompt:'我确认以下本次邀约配置，包括邀请文本、独立的紫鸟私信、商品佣金和免费样品审批方式。筛选条件和邀约配置两部分均确认后才开始本轮找达人；未齐时先记录本部分，不开始找达人。同轮已确认项不重复问，旧草稿不算本轮确认。message是邀请文本，ziniaoMessage是合作邀请成功后随邀请卡分享的紫鸟私信，两者分别确认，不互相替代。请记录并用于本次邀约准备；这次提交只确认配置，不是向达人发送邀请的指令，也不授权发送私信。实际发送时按紫鸟后台店铺日期重新核对命名、截止日期和当月重叠；先核验合作邀请发送成功，再选择实际收件达人，开启随邀请发送消息，使用已确认的紫鸟私信分享，并分别核验邀请卡和私信结果。\n'+JSON.stringify(configuration,null,2)});
+      await window.openai.sendFollowUpMessage({title:'确认本次邀约配置',prompt:'我确认以下本次邀约配置，包括邀请文本、独立的紫鸟私信、商品佣金和免费样品审批方式。紫鸟原生条件由用户预设并保留，对话只确认本轮PPS和邀约配置；明确文字确认同样有效。同轮已确认项不重复问，旧草稿不算本轮确认。message是邀请文本，ziniaoMessage是合作邀请成功后随邀请卡分享的紫鸟私信，两者分别确认，不互相替代。请记录并用于本次邀约准备；这次提交只确认配置，不是向达人发送邀请的指令，也不授权发送私信。实际发送时按紫鸟后台店铺日期重新核对命名、截止日期和当月重叠；邀请成功立即进入向达人发送消息，对可选名单分享一次；发送后直接汇报是否完成，不进行单人抽查或消息数量限制排查。\n'+JSON.stringify(configuration,null,2)});
       $('invite-status').textContent='配置已提交到对话。';
     } catch(e) {$('invite-status').textContent='配置未提交成功，请重试。';}
     finally {button.disabled=false;}

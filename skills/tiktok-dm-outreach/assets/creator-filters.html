@@ -1,4 +1,4 @@
-<div id="ziniao-filters-complete">
+<div id="ziniao-filters-complete" data-backend-prepared="true">
   <style>
     #ziniao-filters-complete .zf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; margin-block: 16px; }
     #ziniao-filters-complete .zf-field { min-width: 0; }
@@ -41,7 +41,7 @@
     }
   </style>
   <div class="viz-row">
-    <strong>紫鸟达人筛选 · US</strong>
+    <strong>PPS条件 · 紫鸟原生条件由你预设</strong>
     <output id="zf-count" class="text-small" aria-live="polite">已设置 0 / 20 项</output>
     <button class="btn btn-ghost" id="zf-reset" type="button">重置</button>
   </div>
@@ -52,7 +52,7 @@
     <label class="form-label" for="zf-summary">已选条件</label>
     <textarea id="zf-summary" class="form-control" rows="2" readonly></textarea>
     <div class="viz-row">
-      <button class="btn btn-primary" id="zf-submit" type="button">确认本次筛选条件</button>
+      <button class="btn btn-primary" id="zf-submit" type="button">确认本次PPS条件</button>
       <span id="zf-status" role="status" aria-live="polite"></span>
     </div>
     <div id="zf-error" class="text-destructive" role="alert"></div>
@@ -1850,6 +1850,8 @@
 (() => {
   const root = document.getElementById('ziniao-filters-complete');
   const schema = JSON.parse(root.querySelector('#zf-schema').textContent);
+  const backendPrepared = root.dataset.backendPrepared === "true";
+  if (backendPrepared) { schema.fields = schema.fields.filter(f => f.key === "pps"); root.querySelector("#zf-all-fields").style.display = "none"; }
   const fields = new Map(schema.fields.map(f => [f.key, f]));
   const values = {};
   const refreshers = new Map();
@@ -1927,7 +1929,7 @@
       trigger.setAttribute('data-tooltip', text);
     });
     root.querySelector('#zf-count').textContent = '已设置 ' + Object.keys(chosen).length + ' / ' + schema.fields.length + ' 项';
-    summary.value = Object.entries(chosen).map(([k, v]) => k + '：' + (v === true ? '勾选' : Array.isArray(v) ? v.join('、') : typeof v === 'object' ? JSON.stringify(v) : v)).join('\n') || '全部不限，两个勾选项未勾选。';
+    summary.value = Object.entries(chosen).map(([k, v]) => k + '：' + (v === true ? '勾选' : Array.isArray(v) ? v.join('、') : typeof v === 'object' ? JSON.stringify(v) : v)).join('\n') || (backendPrepared ? 'PPS未设硬范围；保留你在紫鸟设置的全部条件。' : '全部不限，两个勾选项未勾选。');
     if (!save) return;
     error.textContent = ''; status.textContent = '';
     const state = { modelContent: { type: 'ziniao-creator-filter-draft', sourceDate: schema.verified_at, fields: chosen }, privateContent: { version: 2, values: JSON.parse(JSON.stringify(values)) } };
@@ -2178,7 +2180,7 @@
   });
 
   const order = ['category', 'commission', 'content', 'agency', 'level', 'language', 'expert', 'checkboxes', 'age', 'gender', 'followers', 'gmv', 'units', 'video-views', 'live-views', 'engagement', 'posting', 'brand'];
-  order.forEach(key => root.querySelector('#zf-all-fields').append(key === 'checkboxes' ? root.querySelector('#zf-checkboxes') : root.querySelector('[data-field="' + key + '"]')));
+  if (!backendPrepared) order.forEach(key => root.querySelector('#zf-all-fields').append(key === 'checkboxes' ? root.querySelector('#zf-checkboxes') : root.querySelector('[data-field="' + key + '"]')));
 
   function restore(saved) {
     const state = saved?.privateContent;
@@ -2227,12 +2229,12 @@
     if (values['video-views']) backendFilters['video-views'] = { min: values['video-views'].min, shoppable: values['video-views'].shoppable === true };
     const cardFilters = values.pps ? { pps: { ...values.pps, inclusive: true, missing: '待核验，不计入合格' } } : {};
     if (values['video-views']?.max != null) cardFilters['video-views'] = { max: values['video-views'].max, inclusive_max: true, shoppable: values['video-views'].shoppable === true, missing: '待核验，不计入合格' };
-    const payload = { storeId: null, market: schema.market, optionSourceDate: schema.verified_at, selected: chosen, exactValues: JSON.parse(JSON.stringify(values)), backendFilters, cardFilters };
+    const payload = { backendPrepared, preserveBackendFilters: backendPrepared, storeId: null, market: schema.market, optionSourceDate: schema.verified_at, selected: chosen, exactValues: JSON.parse(JSON.stringify(values)), backendFilters, cardFilters };
     const prompt = '请在用户本次指定并现场确认的紫鸟店铺的TikTok Shop联盟中心（先核对市场）“查找达人”应用下面的筛选条件。以2026-10-19已读取真实选项为映射参考，先核对当前页面；未选字段清除旧筛选并保持不限，两个未勾选复选项保持关闭。保持多选组合和大于/范围的边界，不自行放宽；类目ID对应已读取类目树。品牌列表可能更新，无法匹配时说明。backendFilters为后台原生筛选；cardFilters中的PPS是用户新增的卡片核验条件，不能当作已确认存在的后台下拉。先应用后台条件，再逐个读取达人卡片PPS，只取斜杠左边实际分数，右边5.0为满分不参与筛选；4.5至4.8排除4.9 / 5.0，最低和最高均含边界；未选某端表示该端不限。PPS不可见或为“-”时标待核验，不计入合格名单，不把缺值当0或擅自放宽。未设置PPS时不额外限制评分。cardFilters中的video-views为用户设定的视频平均播放量上限，含上界；后台只应用严格大于min的下限和shoppable勾选，不把上限当原生能力。随后按相同统计口径核验不超过max；shoppable为true时须读取带货视频对应平均播放指标，不以全部视频指标替代。指标缺失或口径无法确认时标待核验，不计入合格，未设上限则不额外限高。应用后回读实际条件并报告可见结果；本次只筛选，不发送邀约、商品卡片或私信。\n\n' + JSON.stringify(payload, null, 2);
-    const confirmationPrompt = '我确认下面的本轮筛选条件。筛选条件和邀约配置两部分均确认后才开始本轮找达人；未齐时先记录本部分，不开始找达人。同轮已确认项不重复问，旧草稿不算本轮确认。收齐确认后按以下条件执行：\n' + prompt;
+    const confirmationPrompt = backendPrepared ? '我确认本轮PPS条件；紫鸟原生条件由我预先设置，请保留，不清空或重设。结合本轮已确认邀约配置和原好达人标准执行；发送后直接汇报是否完成，不做单人抽查或限额排查。本提交只确认PPS，不单独授权外发。\n' + JSON.stringify(payload, null, 2) : '我确认下面的本轮筛选条件。筛选条件和邀约配置两部分均确认后才开始本轮找达人；未齐时先记录本部分，不开始找达人。同轮已确认项不重复问，旧草稿不算本轮确认。收齐确认后按以下条件执行：\n' + prompt;
     if (!window.openai?.sendFollowUpMessage) { summary.value = confirmationPrompt; error.textContent = '当前客户端不能提交，请复制完整条件发送到本对话。'; return; }
     submitting = true; root.querySelector('#zf-submit').disabled = true;
-    try { await window.openai.sendFollowUpMessage({ prompt: confirmationPrompt, title: '确认本次达人筛选条件' }); status.textContent = '筛选条件已提交，收齐本轮邀约配置确认后开始找。'; }
+    try { await window.openai.sendFollowUpMessage({ prompt: confirmationPrompt, title: '确认本次达人筛选条件' }); status.textContent = 'PPS已提交；紫鸟预设条件保持原样。'; }
     catch (_) { error.textContent = '提交未完成，选择已保留，可重试。'; }
     finally { submitting = false; root.querySelector('#zf-submit').disabled = false; }
   }
