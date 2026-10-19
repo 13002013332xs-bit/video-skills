@@ -64,6 +64,12 @@
     <div>旧邀约为“自动批＋当月日期”：从本次邀请名单移除对应达人，保留原邀约。</div>
     <div class="text-small">按店铺日期判断当月；其他重叠按已确认规则处理。移除后重新核对实际人数。</div>
   </section>
+  <hr>
+  <section class="invite-section" aria-labelledby="invite-dm-heading">
+    <h3 id="invite-dm-heading">5　紫鸟私信</h3>
+    <div class="invite-label"><label class="form-label" for="invite-dm-message">合作邀请成功后发送的私信</label><span id="invite-dm-message-count" class="text-small tabular-nums" aria-live="polite">0/500</span></div>
+    <textarea id="invite-dm-message" class="form-control" rows="6" maxlength="500" placeholder="填写本次紫鸟私信话术，确认后随邀请卡分享"></textarea>
+  </section>
   <ul id="invite-errors" class="invite-errors" role="alert" hidden></ul>
   <div class="viz-row"><button id="invite-confirm" type="button" class="btn btn-primary">确认本次邀约配置</button><span id="invite-status" role="status" aria-live="polite"></span></div>
 </div>
@@ -103,6 +109,8 @@
     }
     if (!String(c.message || '').trim()) errors.push('请填写本次邀请文本。');
     if (count(c.message)>500) errors.push('邀请文本超过500字符。');
+    if (options.requireZiniaoMessage && !String(c.ziniaoMessage || '').trim()) errors.push('请填写并确认本次紫鸟私信。');
+    if (count(c.ziniaoMessage)>500) errors.push('紫鸟私信超过500字符。');
     if (!['带货视频','带货直播','暂无偏好'].includes(c.contentType)) errors.push('请选择内容形式。');
     if (!Array.isArray(c.products) || !c.products.length) errors.push('请至少选择1款商品。');
     if ((c.products || []).length>100) errors.push('商品最多100款。');
@@ -155,7 +163,7 @@
   const products=Array.isArray(data.products)?data.products:[];
   const catalog=new Map(products.map(p=>[p.id,p]));
   const stateType='ziniao-invitation-config-v1';
-  let state={shopDate:data.shopDate,language:data.language||'',email:data.contactEmail,phone:'',message:'',contentType:'带货视频',provideSamples:true,sampleMode:'follow',products:[]};
+  let state={shopDate:data.shopDate,language:data.language||'',email:data.contactEmail,phone:'',message:'',ziniaoMessage:'',contentType:'带货视频',provideSamples:true,sampleMode:'follow',products:[]};
   let pickerIDs=new Set(),page=1,pageSize=20,search='';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const short=s=>s.length>64?s.slice(0,64)+'…':s;
@@ -167,7 +175,7 @@
     const c=snapshot.config;
     if (!c || !Array.isArray(c.products)) return false;
     state={...state,...c,shopDate:data.shopDate,language:data.language||'',email:data.contactEmail,phone:'',products:c.products.filter(p=>p&&catalog.has(p.id)&&!catalog.get(p.id).unavailable).map(p=>({id:p.id,standardRate:String(p.standardRate??''),adEnabled:!!p.adEnabled,adRate:String(p.adRate??'')}))};
-    ['message'].forEach(key=>state[key]=String(state[key]??''));
+    ['message','ziniaoMessage'].forEach(key=>state[key]=String(c[key]??''));
     return true;
   }
   function snapshot() {
@@ -180,6 +188,8 @@
     $('invite-name').textContent=R.inviteName(state.shopDate,state.language||'本次筛选语言')||'执行时自动生成';
     $('invite-message-count').textContent=R.count(state.message)+'/500';
     $('invite-message-count').classList.toggle('text-destructive',R.count(state.message)>500);
+    $('invite-dm-message-count').textContent=R.count(state.ziniaoMessage)+'/500';
+    $('invite-dm-message-count').classList.toggle('text-destructive',R.count(state.ziniaoMessage)>500);
     $('invite-end-date').textContent=R.endDate(state.shopDate)||'店铺日期＋20天';
     $('invite-sample-options').hidden=!state.provideSamples;
     $('invite-sample-options').querySelectorAll('input').forEach(i=>i.disabled=!state.provideSamples);
@@ -197,6 +207,7 @@
     $('invite-shop-date').textContent=state.shopDate||'执行时读取紫鸟后台';
     $('invite-language').textContent=state.language||'跟随本次达人筛选语言';
     $('invite-message').value=state.message||'';
+    $('invite-dm-message').value=state.ziniaoMessage||'';
     $('invite-content-type').value=state.contentType;
     $('invite-provide-samples').checked=!!state.provideSamples;
     root.querySelectorAll('input[name="invite-sample-mode"]').forEach(i=>i.checked=i.value===state.sampleMode);
@@ -216,6 +227,7 @@
     $('invite-errors').hidden=!errors.length;
   }
   ['message'].forEach(key=>$('invite-'+key).addEventListener('input',e=>{state[key]=e.target.value;updateHeader();save();}));
+  $('invite-dm-message').addEventListener('input',e=>{state.ziniaoMessage=e.target.value;updateHeader();save();});
   $('invite-content-type').addEventListener('change',e=>{state.contentType=e.target.value;save();});
   $('invite-provide-samples').addEventListener('change',e=>{state.provideSamples=e.target.checked;updateHeader();save();});
   root.querySelectorAll('input[name="invite-sample-mode"]').forEach(i=>i.addEventListener('change',()=>{state.sampleMode=i.value;save();}));
@@ -251,13 +263,13 @@
     state.products=state.products.filter(p=>p.id!==b.dataset.remove);selectedRows();save();
   });
   $('invite-confirm').addEventListener('click',async()=>{
-    const errors=R.validate(state,{requireAutomaticFields:false});showErrors(errors);if(errors.length)return;
+    const errors=R.validate(state,{requireAutomaticFields:false,requireZiniaoMessage:true});showErrors(errors);if(errors.length)return;
     const configuration={...state,dateBasis:'紫鸟后台店铺日期',automaticFields:{language:'跟随本次达人筛选语言',email:'沿用紫鸟系统自带邮箱',phone:'留空',dates:'执行时读取店铺日期，截止加20天'},invitationName:state.language?R.inviteName(state.shopDate,state.language):null,expiresOn:R.endDate(state.shopDate),products:state.products.map(row=>({...row,name:catalog.get(row.id).name,standardRate:Number(row.standardRate).toFixed(2),adRate:row.adEnabled?Number(row.adRate).toFixed(2):null})),overlapPolicy:'旧邀约为自动批且属店铺当月时，从本次邀请移除对应达人；原邀约保留。其他冲突按已确认规则。'};
     save();
     if(!window.openai?.sendFollowUpMessage){$('invite-status').textContent='当前预览不支持提交到对话。';return;}
     const button=$('invite-confirm');button.disabled=true;$('invite-status').textContent='正在提交配置…';
     try {
-      await window.openai.sendFollowUpMessage({title:'确认本次邀约配置',prompt:'我确认以下本次邀约配置，包括邀请文本、商品佣金和免费样品审批方式。请记录并用于本次邀约准备；这次提交只确认配置，不是向达人发送邀请的指令。执行时按紫鸟后台店铺日期重新核对命名、截止日期和当月重叠。\n'+JSON.stringify(configuration,null,2)});
+      await window.openai.sendFollowUpMessage({title:'确认本次邀约配置',prompt:'我确认以下本次邀约配置，包括邀请文本、独立的紫鸟私信、商品佣金和免费样品审批方式。message是邀请文本，ziniaoMessage是合作邀请成功后随邀请卡分享的紫鸟私信，两者分别确认，不互相替代。请记录并用于本次邀约准备；这次提交只确认配置，不是向达人发送邀请的指令，也不授权发送私信。实际发送时按紫鸟后台店铺日期重新核对命名、截止日期和当月重叠；先核验合作邀请发送成功，再选择实际收件达人，开启随邀请发送消息，使用已确认的紫鸟私信分享，并分别核验邀请卡和私信结果。\n'+JSON.stringify(configuration,null,2)});
       $('invite-status').textContent='配置已提交到对话。';
     } catch(e) {$('invite-status').textContent='配置未提交成功，请重试。';}
     finally {button.disabled=false;}
