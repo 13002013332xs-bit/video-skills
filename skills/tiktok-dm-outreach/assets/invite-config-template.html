@@ -1,0 +1,269 @@
+<style>
+#invite-config-panel { width:100%; }
+#invite-config-panel .invite-fields { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px; }
+#invite-config-panel .invite-fields > * { min-width:0; }
+#invite-config-panel .invite-span { grid-column:1/-1; }
+#invite-config-panel .invite-label { display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:6px; }
+#invite-config-panel .invite-section { margin-bottom:24px; }
+#invite-config-panel .invite-toolbar { display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0; }
+#invite-config-panel .invite-product-name { min-width:190px;max-width:290px;overflow-wrap:anywhere; }
+#invite-config-panel .invite-product-name details { margin-top:4px; }
+#invite-config-panel .invite-product-name summary { overflow-wrap:anywhere; }
+#invite-config-panel .invite-product-name small { display:block; }
+#invite-config-panel .invite-percent { display:flex;align-items:center;gap:4px;min-width:118px; }
+#invite-config-panel .invite-percent input { min-width:0; }
+#invite-config-panel .invite-price { white-space:pre-line; }
+#invite-config-panel .invite-catalog { min-width:890px; }
+#invite-config-panel .invite-selected { min-width:700px; }
+#invite-config-panel .invite-radio-list { display:grid;gap:10px; }
+#invite-config-panel [hidden] { display:none !important; }
+#invite-config-panel .invite-errors { color:var(--destructive); }
+#invite-config-panel .invite-product-rate { min-width:125px; }
+@media(max-width:560px) { #invite-config-panel .invite-fields { grid-template-columns:1fr; } }
+</style>
+<div id="invite-config-panel">
+  <section class="invite-section" aria-labelledby="invite-details-heading">
+    <h3 id="invite-details-heading">1　创建邀请</h3>
+    <div class="invite-fields">
+      <div><label class="form-label" for="invite-shop-date">店铺日期（紫鸟后台）</label><input id="invite-shop-date" type="date" class="form-control" readonly><span class="text-small" id="invite-source-date"></span></div>
+      <div><label class="form-label" for="invite-language">本次语言</label><input id="invite-language" class="form-control" placeholder="例如：英语" autocomplete="off"></div>
+      <div><div class="invite-label"><label class="form-label" for="invite-name">邀请名称</label><span id="invite-name-count" class="text-small tabular-nums">0/30</span></div><input id="invite-name" class="form-control" readonly></div>
+      <div><label class="form-label" for="invite-end-date">有效期截至（店铺日期＋20天）</label><input id="invite-end-date" type="date" class="form-control" readonly></div>
+      <div><label class="form-label" for="invite-email">电子邮箱地址</label><input id="invite-email" type="email" class="form-control" autocomplete="off"></div>
+      <div><label class="form-label" for="invite-phone">电话（可选）</label><div class="viz-row"><span>US +1</span><input id="invite-phone" type="tel" class="form-control" autocomplete="off"></div></div>
+      <div class="invite-span"><div class="invite-label"><label class="form-label" for="invite-message">邀请文本</label><span id="invite-message-count" class="text-small tabular-nums" aria-live="polite">0/500</span></div><textarea id="invite-message" class="form-control" rows="6" maxlength="500" placeholder="在这里填写本次邀请内容"></textarea></div>
+      <div><label class="form-label" for="invite-content-type">内容形式</label><select id="invite-content-type" class="form-select"><option value="带货视频">带货视频</option><option value="带货直播">带货直播</option><option value="暂无偏好">暂无偏好</option></select></div>
+    </div>
+  </section>
+  <hr>
+  <section class="invite-section" aria-labelledby="invite-products-heading">
+    <h3 id="invite-products-heading">2　选择商品</h3>
+    <div class="invite-toolbar"><span id="invite-selected-count" class="tabular-nums" aria-live="polite">0 件商品 / 最多100件</span><button id="invite-add-products" type="button" class="btn">添加商品</button></div>
+    <p id="invite-products-empty">尚未选择商品</p>
+    <div id="invite-selected-wrap" class="table-responsive" hidden><table class="table invite-selected"><thead><tr><th>商品</th><th>价格</th><th>标准佣金率</th><th>店铺广告佣金</th><th>店铺广告佣金率</th><th></th></tr></thead><tbody id="invite-selected-body"></tbody></table></div>
+    <div id="invite-picker" hidden>
+      <div class="invite-toolbar"><strong>从店铺添加</strong><span id="invite-catalog-count" class="text-small"></span></div>
+      <label class="form-label" for="invite-product-search">搜索商品名称或商品ID</label><input id="invite-product-search" class="form-control" placeholder="搜索商品" autocomplete="off">
+      <div class="table-responsive"><table class="table table-sm invite-catalog"><thead><tr><th>选择</th><th>商品</th><th>价格</th><th>成交件数</th><th>库存量</th><th>状态</th><th>添加日期</th></tr></thead><tbody id="invite-catalog-body"></tbody></table></div>
+      <div class="invite-toolbar"><span id="invite-picker-count" class="tabular-nums" aria-live="polite"></span><div class="viz-row"><button id="invite-product-prev" type="button" class="btn">上一页</button><span id="invite-product-page" class="tabular-nums"></span><button id="invite-product-next" type="button" class="btn">下一页</button><select id="invite-page-size" class="form-select" aria-label="每页商品数"><option value="20">20 / 页</option><option value="10">10 / 页</option></select></div></div>
+      <div class="viz-row"><button id="invite-picker-cancel" type="button" class="btn">取消</button><button id="invite-picker-add" type="button" class="btn btn-primary">添加</button></div>
+    </div>
+    <div class="text-small">标准佣金、广告佣金：1.00%–80.00%，最多2位小数。关闭自定义广告佣金时，按后台适用规则结算。</div>
+  </section>
+  <hr>
+  <section class="invite-section" aria-labelledby="invite-samples-heading">
+    <h3 id="invite-samples-heading">3　设置免费样品</h3>
+    <label class="form-check form-switch"><input id="invite-provide-samples" type="checkbox" class="form-check-input"><span class="form-check-label">提供免费样品</span></label>
+    <div id="invite-sample-options" class="invite-radio-list">
+      <label class="form-check"><input type="radio" name="invite-sample-mode" value="follow" class="form-check-input"><span class="form-check-label">使用商品级别的样品设置<br><span class="text-small">沿用商品审批规则和限额；未设规则的商品需要手动审核。</span></span></label>
+      <label class="form-check"><input type="radio" name="invite-sample-mode" value="auto" class="form-check-input"><span class="form-check-label">批准此邀请中的所有人<br><span class="text-small">自动批准本邀请内所有达人的免费样品申请。</span></span></label>
+    </div>
+  </section>
+  <hr>
+  <section class="invite-section" aria-labelledby="invite-conflict-heading">
+    <h3 id="invite-conflict-heading">4　邀约重叠处理</h3>
+    <div>旧邀约为“自动批＋当月日期”：从本次邀请名单移除对应达人，保留原邀约。</div>
+    <div class="text-small">按店铺日期判断当月；其他重叠按已确认规则处理。移除后重新核对实际人数。</div>
+  </section>
+  <ul id="invite-errors" class="invite-errors" role="alert" hidden></ul>
+  <div class="viz-row"><button id="invite-confirm" type="button" class="btn btn-primary">确认本次邀约配置</button><span id="invite-status" role="status" aria-live="polite"></span></div>
+</div>
+<script type="application/json" id="invite-catalog-data">{"products":[],"shopDate":"","contactEmail":"","sourceDate":"","contextKey":""}</script>
+<script>
+(function (root) {
+  'use strict';
+  function dateParts(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return null;
+    const [y,m,d] = value.split('-').map(Number);
+    const date = new Date(Date.UTC(y,m-1,d));
+    if (date.getUTCFullYear() !== y || date.getUTCMonth() !== m-1 || date.getUTCDate() !== d) return null;
+    return date;
+  }
+  function endDate(start) {
+    const date = dateParts(start);
+    if (!date) return '';
+    date.setUTCDate(date.getUTCDate() + 20);
+    return date.toISOString().slice(0,10);
+  }
+  function inviteName(start,language) {
+    if (!dateParts(start)) return '';
+    return `自动批${start.slice(5,7)}${start.slice(8,10)}（${String(language || '').trim()}）`;
+  }
+  function count(s) { return String(s || '').length; }
+  function rateOK(value) {
+    const s=String(value ?? '').trim();
+    return /^\d+(?:\.\d{1,2})?$/.test(s) && Number(s)>=1 && Number(s)<=80;
+  }
+  function validate(c) {
+    const errors=[];
+    if (!dateParts(c.shopDate)) errors.push('请核对紫鸟后台的店铺日期。');
+    if (!String(c.language || '').trim()) errors.push('请填写本次语言。');
+    if (count(inviteName(c.shopDate,c.language))>30) errors.push('邀请名称超过30字符，请缩短语言名称。');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(c.email || '').trim())) errors.push('请填写有效的电子邮箱地址。');
+    if (!String(c.message || '').trim()) errors.push('请填写本次邀请文本。');
+    if (count(c.message)>500) errors.push('邀请文本超过500字符。');
+    if (!['带货视频','带货直播','暂无偏好'].includes(c.contentType)) errors.push('请选择内容形式。');
+    if (!Array.isArray(c.products) || !c.products.length) errors.push('请至少选择1款商品。');
+    if ((c.products || []).length>100) errors.push('商品最多100款。');
+    const ids=(c.products || []).map(p=>p.id);
+    if (new Set(ids).size!==ids.length) errors.push('商品有重复，请核对商品ID。');
+    (c.products || []).forEach((p,i)=>{
+      if (!p.id) errors.push(`第${i+1}款缺少商品ID。`);
+      if (!rateOK(p.standardRate)) errors.push(`第${i+1}款标准佣金应为1.00–80.00%，最多2位小数。`);
+      if (p.adEnabled && !rateOK(p.adRate)) errors.push(`第${i+1}款广告佣金应为1.00–80.00%，最多2位小数。`);
+    });
+    if (c.provideSamples && !['follow','auto'].includes(c.sampleMode)) errors.push('请选择免费样品审批方式。');
+    return errors;
+  }
+  function conflictAction(name,shopDate) {
+    const date=dateParts(shopDate);
+    if (!date) return 'pending';
+    const value=String(name || '').trim();
+    const mmdd=value.match(/^(?:自动批\s*)?(\d{2})(\d{2})(?=\D|$)/);
+    const monthWord=value.match(/(?:^|\D)(\d{1,2})月/);
+    let month=mmdd?Number(mmdd[1]):monthWord?Number(monthWord[1]):null;
+    if (!month || month<1 || month>12) return 'pending';
+    if (mmdd) {
+      const day=Number(mmdd[2]);
+      const check=new Date(Date.UTC(2000,month-1,day));
+      if (check.getUTCMonth()!==month-1 || check.getUTCDate()!==day) return 'pending';
+    }
+    const sameMonth=month===date.getUTCMonth()+1;
+    if (/^自动批/.test(value) && sameMonth) return 'remove_from_current';
+    if (!sameMonth) return 'move_to_current';
+    return 'pending';
+  }
+  function creatorAction(names,shopDate) {
+    const actions=names.map(n=>conflictAction(n,shopDate));
+    if (actions.includes('remove_from_current')) return 'remove_from_current';
+    if (actions.length && actions.every(a=>a==='move_to_current')) return 'move_to_current';
+    return 'pending';
+  }
+  const api={endDate,inviteName,count,rateOK,validate,conflictAction,creatorAction};
+  if (typeof module!=='undefined' && module.exports) module.exports=api;
+  else root.InviteRules=api;
+})(typeof window==='undefined'?globalThis:window);
+
+</script>
+<script>
+(() => {
+  const root=document.getElementById('invite-config-panel');
+  const $=id=>root.querySelector('#'+id);
+  const R=window.InviteRules;
+  const data=JSON.parse(document.getElementById('invite-catalog-data').textContent);
+  const products=Array.isArray(data.products)?data.products:[];
+  const catalog=new Map(products.map(p=>[p.id,p]));
+  const stateType='ziniao-invitation-config-v1';
+  let state={shopDate:data.shopDate,language:'',email:data.contactEmail,phone:'',message:'',contentType:'带货视频',provideSamples:true,sampleMode:'follow',products:[]};
+  let pickerIDs=new Set(),page=1,pageSize=20,search='';
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const short=s=>s.length>64?s.slice(0,64)+'…':s;
+  function restore(saved) {
+    const snapshot=saved?.modelContent || saved;
+    if (snapshot?.type!==stateType || snapshot.contextKey!==data.contextKey) return false;
+    const c=snapshot.config;
+    if (!c || !Array.isArray(c.products)) return false;
+    state={...state,...c,shopDate:data.shopDate,products:c.products.filter(p=>p&&catalog.has(p.id)&&!catalog.get(p.id).unavailable).map(p=>({id:p.id,standardRate:String(p.standardRate??''),adEnabled:!!p.adEnabled,adRate:String(p.adRate??'')}))};
+    ['language','email','phone','message'].forEach(key=>state[key]=String(state[key]??''));
+    return true;
+  }
+  function snapshot() {
+    return {type:stateType,contextKey:data.contextKey,config:JSON.parse(JSON.stringify(state))};
+  }
+  function save() {
+    if (window.openai?.setWidgetState) window.openai.setWidgetState({modelContent:snapshot(),privateContent:null}).catch(()=>{});
+  }
+  function updateHeader() {
+    $('invite-name').value=state.language.trim()?R.inviteName(state.shopDate,state.language):'';
+    $('invite-name-count').textContent=R.count($('invite-name').value)+'/30';
+    $('invite-name-count').classList.toggle('text-destructive',R.count($('invite-name').value)>30);
+    $('invite-message-count').textContent=R.count(state.message)+'/500';
+    $('invite-message-count').classList.toggle('text-destructive',R.count(state.message)>500);
+    $('invite-end-date').value=R.endDate(state.shopDate);
+    $('invite-sample-options').hidden=!state.provideSamples;
+    $('invite-sample-options').querySelectorAll('input').forEach(i=>i.disabled=!state.provideSamples);
+  }
+  function selectedRows() {
+    $('invite-selected-count').textContent=state.products.length+' 件商品 / 最多100件';
+    $('invite-products-empty').hidden=state.products.length>0;
+    $('invite-selected-wrap').hidden=state.products.length===0;
+    $('invite-selected-body').innerHTML=state.products.map(row=>{
+      const p=catalog.get(row.id);
+      return `<tr data-product-id="${esc(p.id)}"><td class="invite-product-name"><details><summary>${esc(short(p.name))}</summary><span>${esc(p.name)}</span></details><small class="text-small">ID: ${esc(p.id)}</small></td><td class="invite-price">${esc(p.priceText)}</td><td class="invite-product-rate"><div class="invite-percent"><input class="form-control" type="text" inputmode="decimal" placeholder="1.00–80.00" data-field="standardRate" value="${esc(row.standardRate)}" aria-label="${esc(p.name)} 标准佣金率"><span>%</span></div></td><td><label class="form-check form-switch"><input type="checkbox" class="form-check-input" data-field="adEnabled" ${row.adEnabled?'checked':''} aria-label="${esc(p.name)} 店铺广告佣金"><span class="form-check-label">启用</span></label></td><td class="invite-product-rate"><div class="invite-percent"><input class="form-control" type="text" inputmode="decimal" placeholder="1.00–80.00" data-field="adRate" value="${esc(row.adRate)}" ${row.adEnabled?'':'disabled'} aria-label="${esc(p.name)} 广告佣金率"><span>%</span></div></td><td><button class="btn btn-ghost" type="button" data-remove="${esc(p.id)}" aria-label="移除 ${esc(p.name)}">移除</button></td></tr>`;
+    }).join('');
+  }
+  function paint() {
+    $('invite-shop-date').value=state.shopDate;
+    $('invite-source-date').textContent=data.sourceDate?'读取日期：'+data.sourceDate:'';
+    ['language','email','phone','message'].forEach(key=>$('invite-'+key).value=state[key]||'');
+    $('invite-content-type').value=state.contentType;
+    $('invite-provide-samples').checked=!!state.provideSamples;
+    root.querySelectorAll('input[name="invite-sample-mode"]').forEach(i=>i.checked=i.value===state.sampleMode);
+    updateHeader();selectedRows();
+  }
+  function pickerRows() {
+    const filtered=products.filter(p=>(p.name+' '+p.id).toLowerCase().includes(search.toLowerCase()));
+    const total=Math.max(1,Math.ceil(filtered.length/pageSize));page=Math.min(Math.max(1,page),total);
+    $('invite-catalog-count').textContent='当前店铺 '+products.length+' 款商品';
+    $('invite-catalog-body').innerHTML=filtered.slice((page-1)*pageSize,page*pageSize).map(p=>`<tr><td><label class="form-check"><input type="checkbox" class="form-check-input" data-pick="${esc(p.id)}" ${pickerIDs.has(p.id)?'checked':''} ${p.unavailable?'disabled':''} aria-label="选择 ${esc(p.name)}"><span class="form-check-label"></span></label></td><td class="invite-product-name"><details><summary>${esc(short(p.name))}</summary><span>${esc(p.name)}</span></details><small class="text-small">ID: ${esc(p.id)}</small>${p.unavailable?'<small class="text-small">后台当前不可选</small>':''}${p.samplePaused?'<small class="text-small">已暂停提供样品</small>':''}</td><td class="invite-price">${esc(p.priceText)}</td><td>${esc(p.sold)}</td><td>${esc(p.stock)}</td><td>${esc(p.status)}</td><td>${esc(p.addedDate)}</td></tr>`).join('');
+    $('invite-product-page').textContent=page+' / '+total;
+    $('invite-product-prev').disabled=page===1;$('invite-product-next').disabled=page===total;
+    $('invite-picker-count').textContent='已选择 '+pickerIDs.size+' / 100 件商品';
+  }
+  function showErrors(errors) {
+    $('invite-errors').innerHTML=errors.map(s=>'<li>'+esc(s)+'</li>').join('');
+    $('invite-errors').hidden=!errors.length;
+  }
+  ['language','email','phone','message'].forEach(key=>$('invite-'+key).addEventListener('input',e=>{state[key]=e.target.value;updateHeader();save();}));
+  $('invite-content-type').addEventListener('change',e=>{state.contentType=e.target.value;save();});
+  $('invite-provide-samples').addEventListener('change',e=>{state.provideSamples=e.target.checked;updateHeader();save();});
+  root.querySelectorAll('input[name="invite-sample-mode"]').forEach(i=>i.addEventListener('change',()=>{state.sampleMode=i.value;save();}));
+  $('invite-add-products').addEventListener('click',()=>{pickerIDs=new Set(state.products.map(p=>p.id));$('invite-picker').hidden=false;pickerRows();});
+  $('invite-picker-cancel').addEventListener('click',()=>{$('invite-picker').hidden=true;});
+  $('invite-product-search').addEventListener('input',e=>{search=e.target.value;page=1;pickerRows();});
+  $('invite-product-prev').addEventListener('click',()=>{page--;pickerRows();});
+  $('invite-product-next').addEventListener('click',()=>{page++;pickerRows();});
+  $('invite-page-size').addEventListener('change',e=>{pageSize=Number(e.target.value);page=1;pickerRows();});
+  $('invite-catalog-body').addEventListener('change',e=>{
+    const id=e.target.dataset.pick;if(!id)return;
+    if(e.target.checked)pickerIDs.add(id);else pickerIDs.delete(id);
+    $('invite-picker-count').textContent='已选择 '+pickerIDs.size+' / 100 件商品';
+  });
+  $('invite-picker-add').addEventListener('click',()=>{
+    if(pickerIDs.size>100){showErrors(['商品最多100款。']);return;}
+    const old=new Map(state.products.map(p=>[p.id,p]));
+    state.products=Array.from(pickerIDs).map(id=>old.get(id)||{id,standardRate:'',adEnabled:true,adRate:''});
+    $('invite-picker').hidden=true;selectedRows();save();
+  });
+  $('invite-selected-body').addEventListener('input',e=>{
+    const row=e.target.closest('[data-product-id]');const field=e.target.dataset.field;
+    if(!row||!field||field==='adEnabled')return;
+    const p=state.products.find(p=>p.id===row.dataset.productId);p[field]=e.target.value;save();
+  });
+  $('invite-selected-body').addEventListener('change',e=>{
+    if(e.target.dataset.field!=='adEnabled')return;
+    const tr=e.target.closest('[data-product-id]');const p=state.products.find(p=>p.id===tr.dataset.productId);
+    p.adEnabled=e.target.checked;tr.querySelector('[data-field="adRate"]').disabled=!p.adEnabled;save();
+  });
+  $('invite-selected-body').addEventListener('click',e=>{
+    const b=e.target.closest('[data-remove]');if(!b)return;
+    state.products=state.products.filter(p=>p.id!==b.dataset.remove);selectedRows();save();
+  });
+  $('invite-confirm').addEventListener('click',async()=>{
+    const errors=R.validate(state);showErrors(errors);if(errors.length)return;
+    const configuration={...state,dateBasis:'紫鸟后台店铺日期',invitationName:R.inviteName(state.shopDate,state.language),expiresOn:R.endDate(state.shopDate),products:state.products.map(row=>({...row,name:catalog.get(row.id).name,standardRate:Number(row.standardRate).toFixed(2),adRate:row.adEnabled?Number(row.adRate).toFixed(2):null})),overlapPolicy:'旧邀约为自动批且属店铺当月时，从本次邀请移除对应达人；原邀约保留。其他冲突按已确认规则。'};
+    save();
+    if(!window.openai?.sendFollowUpMessage){$('invite-status').textContent='当前预览不支持提交到对话。';return;}
+    const button=$('invite-confirm');button.disabled=true;$('invite-status').textContent='正在提交配置…';
+    try {
+      await window.openai.sendFollowUpMessage({title:'确认本次邀约配置',prompt:'我确认以下本次邀约配置，包括邀请文本、商品佣金和免费样品审批方式。请记录并用于本次邀约准备；这次提交只确认配置，不是向达人发送邀请的指令。执行时按紫鸟后台店铺日期重新核对命名、截止日期和当月重叠。\n'+JSON.stringify(configuration,null,2)});
+      $('invite-status').textContent='配置已提交到对话。';
+    } catch(e) {$('invite-status').textContent='配置未提交成功，请重试。';}
+    finally {button.disabled=false;}
+  });
+  restore(window.openai?.widgetState);paint();
+  window.addEventListener('openai:set_globals',e=>{
+    const saved=e.detail?.globals?.widgetState;if(!saved||!restore(saved))return;paint();
+  });
+})();
+</script>
