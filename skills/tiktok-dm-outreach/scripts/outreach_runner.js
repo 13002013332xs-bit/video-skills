@@ -1,5 +1,5 @@
 /*
- * 浏览器自动化会话里可直接复用的操作脚本。
+ * 历史 CUA 示例，非默认执行入口；先读 SKILL.md 和 references/execution.md。
  *
  * 用法：把本文件内容粘进浏览器自动化（cua_repl）会话，先设置下面 T（话术正文）和 jobs（本批名单），
  * 再执行循环。变量 c 是浏览器应用绑定：`c = await cua.getApp("Google Chrome", { emit: false })`。
@@ -8,8 +8,12 @@
  * - 每批只放 3–4 个达人：工具调用有 5 分钟上限，放多了会被截断、日志丢失。
  * - 每次动作后重新读无障碍树，不复用旧的元素编号。
  * - 关注/点赞前先读状态，避免点成取关或取消赞。
- * - 返回值里的「已发送」只有在输入框被清空时才成立。
+ * - 返回值仅表示尝试，必须另行重载核对持久化；输入框清空不算成功。
  */
+
+if (typeof outreachAuthorization !== 'object' || outreachAuthorization?.confirmed !== true) {
+  throw new Error('历史示例默认不执行；只有当次用户明确授权发送和相应互动后，才能设置 outreachAuthorization.confirmed。');
+}
 
 // 1) 话术正文：键是版本号，值是正文（不含个性化开场白）
 const T = {
@@ -84,10 +88,10 @@ async function sendDM(user, tpl, opener) {
   await sleep(2500);
   const L4 = await getL();
   const cleared = /Value:\s*$/.test(L4.find(x => /文本输入区/.test(x)) || "x");
-  return (cleared ? "已发送" : "发送未确认") + "(话术" + tpl + ")";
+  return (cleared ? "已尝试，持久化待核验" : "发送未确认") + "(话术" + tpl + ")";
 }
 
-// 2) 本批名单：follow / like 标记这一批轮到他做哪个动作（每批至少 2 关注、3 点赞，且不重复）
+// 2) 本批名单：follow / like 仅在当次授权包含对应互动时设置，不使用历史固定数量。
 const jobs = [
   { u: "<用户名A>", opener: "<个性化开场白 A>", follow: true },
   { u: "<用户名B>", opener: "<个性化开场白 B>", like: true },
@@ -104,7 +108,7 @@ for (const j of jobs) {
   do { tpl = 1 + Math.floor(Math.random() * 5); } while (tpl === lastTpl);
   const r = await sendDM(j.u, tpl, j.opener);
   parts.push("私信:" + r);
-  if (/已发送/.test(r)) lastTpl = tpl;
+  if (/已尝试/.test(r)) lastTpl = tpl;
   nodeRepl.write(j.u + " → " + parts.join(" | ") + "\n");
   await sleep(20000 + Math.floor(Math.random() * 18000)); // 20–40 秒随机
 }

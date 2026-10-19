@@ -1,0 +1,1787 @@
+{
+  "schema_version": 2,
+  "verified_at": "2026-10-19",
+  "source": "TikTok Shop美国联盟中心2026-10-19已展开控件的公开选项快照；运行前核对当前店铺和页面",
+  "market": "US",
+  "interface": "当前Codex对话内点选，再交给Codex应用到紫鸟",
+  "fields": [
+    {
+      "key": "pps",
+      "label": "PPS 评分",
+      "group": "creator",
+      "type": "score-range",
+      "options_verified": false,
+      "source": "2026-10-19用户指定分数；用户提供达人卡片截图可见PPS",
+      "application": "creator-card-postfilter",
+      "help": "按达人卡片PPS左边的实际分数核验；右边5.0为满分，不参与筛选。最低、最高含边界；单端不限。4.5–4.8排除4.9 / 5.0，缺失评分待核验、不计入合格。",
+      "options": [
+        "5.0",
+        "4.8",
+        "4.7",
+        "4.6",
+        "4.5",
+        "4.4",
+        "4.3",
+        "4.2",
+        "4.1",
+        "4.0",
+        "3.9"
+      ],
+      "inclusive": true,
+      "missing": "待核验，不计入合格",
+      "reading": {
+        "actual": "斜杠左边",
+        "full_score": "斜杠右边5.0，不参与筛选",
+        "example": {
+          "card": "4.9 / 5.0",
+          "selected_scores": [
+            "4.5",
+            "4.6",
+            "4.7",
+            "4.8"
+          ],
+          "result": "excluded"
+        },
+        "explicit_selection": "只保留明确列出的分数，不补中间值"
+      }
+    },
+    {
+      "key": "category",
+      "label": "商品类目",
+      "group": "creator",
+      "type": "category",
+      "options_verified": true,
+      "help": "选择一个商品类目，以查看过去 30 天内在该类目中产生成交额或推广商品的达人，或在过去 90 天内将商品添加到商品橱窗的达人。",
+      "multiple": true,
+      "options": [
+        {
+          "label": "家居用品",
+          "value": "600001",
+          "children": [
+            {
+              "label": "卫生间用品",
+              "value": "600372"
+            },
+            {
+              "label": "家居收纳用品",
+              "value": "851848"
+            },
+            {
+              "label": "卫浴用品",
+              "value": "851976"
+            },
+            {
+              "label": "装饰",
+              "value": "852104"
+            },
+            {
+              "label": "家庭护理用品",
+              "value": "852232"
+            },
+            {
+              "label": "洗衣工具",
+              "value": "852360"
+            },
+            {
+              "label": "节日和派对用品",
+              "value": "852488"
+            },
+            {
+              "label": "家居日用",
+              "value": "852616"
+            }
+          ]
+        },
+        {
+          "label": "厨具",
+          "value": "600024",
+          "children": [
+            {
+              "label": "咖啡用具与茶用具",
+              "value": "858504"
+            },
+            {
+              "label": "刀具",
+              "value": "858632"
+            },
+            {
+              "label": "烧烤用具",
+              "value": "858760"
+            },
+            {
+              "label": "酒具",
+              "value": "858888"
+            },
+            {
+              "label": "烘焙用具",
+              "value": "859016"
+            },
+            {
+              "label": "烹饪工具",
+              "value": "859144"
+            },
+            {
+              "label": "餐具与器皿",
+              "value": "859272"
+            },
+            {
+              "label": "饮具",
+              "value": "859400"
+            },
+            {
+              "label": "厨房器具",
+              "value": "859528"
+            }
+          ]
+        },
+        {
+          "label": "家纺布艺",
+          "value": "600154",
+          "children": [
+            {
+              "label": "床上用品",
+              "value": "808328"
+            },
+            {
+              "label": "居家布艺",
+              "value": "809992"
+            },
+            {
+              "label": "面料和缝纫用品",
+              "value": "811016"
+            }
+          ]
+        },
+        {
+          "label": "家电",
+          "value": "600942",
+          "children": [
+            {
+              "label": "厨房电器",
+              "value": "844168"
+            },
+            {
+              "label": "生活家电",
+              "value": "844808"
+            },
+            {
+              "label": "大家电",
+              "value": "845064"
+            },
+            {
+              "label": "商用电器",
+              "value": "845320"
+            },
+            {
+              "label": "翻新家电",
+              "value": "2109200"
+            }
+          ]
+        },
+        {
+          "label": "女装和内衣",
+          "value": "601152",
+          "children": [
+            {
+              "label": "女士上装",
+              "value": "842248"
+            },
+            {
+              "label": "女士下装",
+              "value": "842376"
+            },
+            {
+              "label": "女士连衣裙",
+              "value": "842504"
+            },
+            {
+              "label": "女士特殊服饰",
+              "value": "842632"
+            },
+            {
+              "label": "女士套装与连体衣",
+              "value": "842760"
+            },
+            {
+              "label": "女士内衣",
+              "value": "842888"
+            },
+            {
+              "label": "女士睡衣和家居服",
+              "value": "843016"
+            }
+          ]
+        },
+        {
+          "label": "穆斯林时尚",
+          "value": "601303",
+          "children": [
+            {
+              "label": "面纱",
+              "value": "601304"
+            },
+            {
+              "label": "女士穆斯林服饰",
+              "value": "601310"
+            },
+            {
+              "label": "男士穆斯林服装",
+              "value": "601325"
+            },
+            {
+              "label": "外套",
+              "value": "601331"
+            },
+            {
+              "label": "穆斯林配饰",
+              "value": "601343"
+            },
+            {
+              "label": "祈祷用品",
+              "value": "601348"
+            },
+            {
+              "label": "穆斯林运动服饰",
+              "value": "838920"
+            },
+            {
+              "label": "乌姆罗",
+              "value": "839176"
+            }
+          ]
+        },
+        {
+          "label": "鞋靴",
+          "value": "601352",
+          "children": [
+            {
+              "label": "女鞋",
+              "value": "900488"
+            },
+            {
+              "label": "男鞋",
+              "value": "900616"
+            },
+            {
+              "label": "鞋靴配件",
+              "value": "900744"
+            }
+          ]
+        },
+        {
+          "label": "美妆个护",
+          "value": "601450",
+          "children": [
+            {
+              "label": "美妆",
+              "value": "848648"
+            },
+            {
+              "label": "护肤品",
+              "value": "848776"
+            },
+            {
+              "label": "护发和造型",
+              "value": "848904"
+            },
+            {
+              "label": "手足护理",
+              "value": "849032"
+            },
+            {
+              "label": "洗浴与身体护理",
+              "value": "849160"
+            },
+            {
+              "label": "男士护理",
+              "value": "849288"
+            },
+            {
+              "label": "美容、个护电器",
+              "value": "849416"
+            },
+            {
+              "label": "眼镜耳朵护理",
+              "value": "849544"
+            },
+            {
+              "label": "鼻子口腔护理",
+              "value": "849672"
+            },
+            {
+              "label": "女性私密处护理",
+              "value": "849800"
+            },
+            {
+              "label": "香水",
+              "value": "856208"
+            },
+            {
+              "label": "特殊个护",
+              "value": "981128"
+            },
+            {
+              "label": "指甲护理",
+              "value": "1086856"
+            }
+          ]
+        },
+        {
+          "label": "手机和电子产品",
+          "value": "601739",
+          "children": [
+            {
+              "label": "手机配件",
+              "value": "909064"
+            },
+            {
+              "label": "摄影摄像",
+              "value": "909192"
+            },
+            {
+              "label": "影音设备",
+              "value": "909320"
+            },
+            {
+              "label": "游戏设备",
+              "value": "909448"
+            },
+            {
+              "label": "智能及穿戴设备",
+              "value": "909576"
+            },
+            {
+              "label": "教学设备",
+              "value": "909704"
+            },
+            {
+              "label": "通用配件",
+              "value": "978952"
+            },
+            {
+              "label": "平板电脑配件",
+              "value": "984584"
+            },
+            {
+              "label": "手机与平板",
+              "value": "995976"
+            },
+            {
+              "label": "智能穿戴设备",
+              "value": "2108944"
+            },
+            {
+              "label": "翻新电子设备",
+              "value": "2109072"
+            }
+          ]
+        },
+        {
+          "label": "电脑和办公设备",
+          "value": "601755",
+          "children": [
+            {
+              "label": "电脑整机",
+              "value": "824840"
+            },
+            {
+              "label": "电脑 & 笔记本电脑组件",
+              "value": "825352"
+            },
+            {
+              "label": "外设产品与配件",
+              "value": "826760"
+            },
+            {
+              "label": "数据储存与软件",
+              "value": "828168"
+            },
+            {
+              "label": "网络组件",
+              "value": "829192"
+            },
+            {
+              "label": "办公设备",
+              "value": "830344"
+            },
+            {
+              "label": "办公文具用品",
+              "value": "831112"
+            }
+          ]
+        },
+        {
+          "label": "宠物用品",
+          "value": "602118",
+          "children": [
+            {
+              "label": "猫狗食品",
+              "value": "812168"
+            },
+            {
+              "label": "猫狗家具",
+              "value": "812808"
+            },
+            {
+              "label": "猫狗服饰",
+              "value": "813960"
+            },
+            {
+              "label": "猫狗如厕用品",
+              "value": "815624"
+            },
+            {
+              "label": "猫狗清洁美容",
+              "value": "816392"
+            },
+            {
+              "label": "猫狗健康护理",
+              "value": "818184"
+            },
+            {
+              "label": "猫狗配件",
+              "value": "818696"
+            },
+            {
+              "label": "水族用品",
+              "value": "819848"
+            },
+            {
+              "label": "爬行两栖用品",
+              "value": "821000"
+            },
+            {
+              "label": "鸟用品",
+              "value": "821896"
+            },
+            {
+              "label": "小宠用品",
+              "value": "822792"
+            },
+            {
+              "label": "农场动物与家禽用品",
+              "value": "1001992"
+            }
+          ]
+        },
+        {
+          "label": "母婴用品",
+          "value": "602284",
+          "children": [
+            {
+              "label": "婴儿服饰与鞋",
+              "value": "877320"
+            },
+            {
+              "label": "婴儿外出用品",
+              "value": "877576"
+            },
+            {
+              "label": "哺育用品",
+              "value": "877832"
+            },
+            {
+              "label": "婴儿家具",
+              "value": "878216"
+            },
+            {
+              "label": "婴儿安全防护用品",
+              "value": "878600"
+            },
+            {
+              "label": "婴儿玩具",
+              "value": "878984"
+            },
+            {
+              "label": "婴儿护理与健康",
+              "value": "879112"
+            },
+            {
+              "label": "孕产用品",
+              "value": "880008"
+            },
+            {
+              "label": "婴儿时尚配件",
+              "value": "961928"
+            }
+          ]
+        },
+        {
+          "label": "运动与户外",
+          "value": "603014",
+          "children": [
+            {
+              "label": "运动服饰",
+              "value": "834568"
+            },
+            {
+              "label": "运动鞋",
+              "value": "834696"
+            },
+            {
+              "label": "运动与户外配件",
+              "value": "834824"
+            },
+            {
+              "label": "球类运动设备",
+              "value": "834952"
+            },
+            {
+              "label": "水上运动设备",
+              "value": "835080"
+            },
+            {
+              "label": "冬季运动设备",
+              "value": "835208"
+            },
+            {
+              "label": "健身设备",
+              "value": "835336"
+            },
+            {
+              "label": "灯具和灯笼",
+              "value": "835464"
+            },
+            {
+              "label": "休闲和户外娱乐器材",
+              "value": "835592"
+            },
+            {
+              "label": "泳装&冲浪服&潜水服",
+              "value": "846224"
+            },
+            {
+              "label": "球迷周边",
+              "value": "936712"
+            },
+            {
+              "label": "草坪游戏",
+              "value": "2108816"
+            }
+          ]
+        },
+        {
+          "label": "玩具和爱好",
+          "value": "604206",
+          "children": [
+            {
+              "label": "娃娃与毛绒玩具",
+              "value": "859656"
+            },
+            {
+              "label": "益智玩具",
+              "value": "859784"
+            },
+            {
+              "label": "运动与户外玩具",
+              "value": "859912"
+            },
+            {
+              "label": "电动与遥控玩具",
+              "value": "860040"
+            },
+            {
+              "label": "棋盘娱乐",
+              "value": "860168"
+            },
+            {
+              "label": "传统与创新玩具",
+              "value": "860296"
+            },
+            {
+              "label": "乐器与配件",
+              "value": "860552"
+            },
+            {
+              "label": "DIY爱好",
+              "value": "951560"
+            }
+          ]
+        },
+        {
+          "label": "家具",
+          "value": "604453",
+          "children": [
+            {
+              "label": "室内家具",
+              "value": "871048"
+            },
+            {
+              "label": "室外家具",
+              "value": "871176"
+            },
+            {
+              "label": "商用家具",
+              "value": "871432"
+            }
+          ]
+        },
+        {
+          "label": "五金工具",
+          "value": "604579",
+          "children": [
+            {
+              "label": "电动工具",
+              "value": "871560"
+            },
+            {
+              "label": "手动工具",
+              "value": "871688"
+            },
+            {
+              "label": "测量工具",
+              "value": "871816"
+            },
+            {
+              "label": "园林工具",
+              "value": "871944"
+            },
+            {
+              "label": "焊接工具",
+              "value": "872072"
+            },
+            {
+              "label": "工具收纳",
+              "value": "872200"
+            },
+            {
+              "label": "五金",
+              "value": "872328"
+            },
+            {
+              "label": "泵及管件设施",
+              "value": "980488"
+            }
+          ]
+        },
+        {
+          "label": "家居装修",
+          "value": "604968",
+          "children": [
+            {
+              "label": "太阳能与风能设备",
+              "value": "808208"
+            },
+            {
+              "label": "灯具和照明设备",
+              "value": "872456"
+            },
+            {
+              "label": "电气设备及用品",
+              "value": "872584"
+            },
+            {
+              "label": "厨房设备",
+              "value": "872712"
+            },
+            {
+              "label": "家庭智能系统",
+              "value": "872840"
+            },
+            {
+              "label": "建筑用品",
+              "value": "872968"
+            },
+            {
+              "label": "浴室设备",
+              "value": "873096"
+            },
+            {
+              "label": "安防劳保用品",
+              "value": "873224"
+            },
+            {
+              "label": "花园用品",
+              "value": "873352"
+            }
+          ]
+        },
+        {
+          "label": "汽车和摩托车相关",
+          "value": "605196",
+          "children": [
+            {
+              "label": "汽车零部件",
+              "value": "809488"
+            },
+            {
+              "label": "摩托车零部件",
+              "value": "809616"
+            },
+            {
+              "label": "摩托车",
+              "value": "847504"
+            },
+            {
+              "label": "汽车电子产品",
+              "value": "929928"
+            },
+            {
+              "label": "外部配件",
+              "value": "930056"
+            },
+            {
+              "label": "汽车内饰配件",
+              "value": "930184"
+            },
+            {
+              "label": "汽车修理工具",
+              "value": "940296"
+            },
+            {
+              "label": "汽车灯",
+              "value": "940424"
+            },
+            {
+              "label": "沙滩车、房车、游艇设备",
+              "value": "940680"
+            },
+            {
+              "label": "洗车和保养",
+              "value": "940808"
+            },
+            {
+              "label": "摩托车配件",
+              "value": "940936"
+            }
+          ]
+        },
+        {
+          "label": "时尚配饰",
+          "value": "605248",
+          "children": [
+            {
+              "label": "假发",
+              "value": "810128"
+            },
+            {
+              "label": "服装布料",
+              "value": "843144"
+            },
+            {
+              "label": "婚礼配件",
+              "value": "888592"
+            },
+            {
+              "label": "服饰配件",
+              "value": "905224"
+            },
+            {
+              "label": "眼镜",
+              "value": "905352"
+            },
+            {
+              "label": "手表与配件",
+              "value": "905480"
+            },
+            {
+              "label": "平价饰品",
+              "value": "905608"
+            },
+            {
+              "label": "发饰",
+              "value": "905864"
+            }
+          ]
+        },
+        {
+          "label": "食品饮料",
+          "value": "700437",
+          "children": [
+            {
+              "label": "奶与乳制品",
+              "value": "809744"
+            },
+            {
+              "label": "酒",
+              "value": "914696"
+            },
+            {
+              "label": "饮料",
+              "value": "914824"
+            },
+            {
+              "label": "即食食品",
+              "value": "914952"
+            },
+            {
+              "label": "主食与烹饪调味",
+              "value": "915080"
+            },
+            {
+              "label": "烘培用品",
+              "value": "915208"
+            },
+            {
+              "label": "零食",
+              "value": "915336"
+            }
+          ]
+        },
+        {
+          "label": "保健",
+          "value": "700645",
+          "children": [
+            {
+              "label": "保健食品",
+              "value": "700646"
+            },
+            {
+              "label": "医疗保健",
+              "value": "924424"
+            },
+            {
+              "label": "情趣用品",
+              "value": "924552"
+            },
+            {
+              "label": "非处方药物与疗法",
+              "value": "949384"
+            },
+            {
+              "label": "另类医疗",
+              "value": "950792"
+            },
+            {
+              "label": "葬礼用品",
+              "value": "1025416"
+            }
+          ]
+        },
+        {
+          "label": "图书、杂志和音频",
+          "value": "801928",
+          "children": [
+            {
+              "label": "人文社科",
+              "value": "927112"
+            },
+            {
+              "label": "杂志与报纸",
+              "value": "985736"
+            },
+            {
+              "label": "文学与艺术",
+              "value": "986760"
+            },
+            {
+              "label": "经济与管理",
+              "value": "989320"
+            },
+            {
+              "label": "儿童与婴幼儿图书",
+              "value": "989704"
+            },
+            {
+              "label": "科技",
+              "value": "990216"
+            },
+            {
+              "label": "生活与爱好",
+              "value": "992392"
+            },
+            {
+              "label": "教育",
+              "value": "992904"
+            },
+            {
+              "label": "影视&音乐",
+              "value": "997384"
+            }
+          ]
+        },
+        {
+          "label": "儿童时尚",
+          "value": "802184",
+          "children": [
+            {
+              "label": "男童服饰",
+              "value": "802312"
+            },
+            {
+              "label": "女童服装",
+              "value": "803592"
+            },
+            {
+              "label": "儿童时尚配件",
+              "value": "806792"
+            }
+          ]
+        },
+        {
+          "label": "男装与男士内衣",
+          "value": "824328",
+          "children": [
+            {
+              "label": "男士上装",
+              "value": "839944"
+            },
+            {
+              "label": "男士下装",
+              "value": "840072"
+            },
+            {
+              "label": "男士特殊服饰",
+              "value": "840328"
+            },
+            {
+              "label": "男士内衣",
+              "value": "840456"
+            },
+            {
+              "label": "男士睡衣和家居服",
+              "value": "840584"
+            },
+            {
+              "label": "男士套装与连体衣",
+              "value": "840712"
+            }
+          ]
+        },
+        {
+          "label": "箱包",
+          "value": "824584",
+          "children": [
+            {
+              "label": "女包",
+              "value": "902408"
+            },
+            {
+              "label": "男包",
+              "value": "902536"
+            },
+            {
+              "label": "旅行箱包",
+              "value": "902664"
+            },
+            {
+              "label": "功能箱包",
+              "value": "902792"
+            },
+            {
+              "label": "箱包配件",
+              "value": "902920"
+            }
+          ]
+        },
+        {
+          "label": "收藏品",
+          "value": "951432",
+          "children": [
+            {
+              "label": "当代文化收藏",
+              "value": "809872"
+            },
+            {
+              "label": "集换式卡牌和配件",
+              "value": "810000"
+            },
+            {
+              "label": "运动收藏品",
+              "value": "937736"
+            },
+            {
+              "label": "娱乐收藏",
+              "value": "953352"
+            },
+            {
+              "label": "幸运抽奖",
+              "value": "1050248"
+            }
+          ]
+        },
+        {
+          "label": "珠宝与衍生品",
+          "value": "953224",
+          "children": [
+            {
+              "label": "银",
+              "value": "955144"
+            },
+            {
+              "label": "天然水晶",
+              "value": "955400"
+            },
+            {
+              "label": "非天然水晶",
+              "value": "961800"
+            },
+            {
+              "label": "人造宝石",
+              "value": "964360"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "commission",
+      "label": "平均佣金率",
+      "group": "creator",
+      "type": "single",
+      "options_verified": true,
+      "help": "基于过去 30 天内商品橱窗商品数、销售量和推广商品数的达人平均佣金率范围。",
+      "multiple": false,
+      "options": [
+        "全部",
+        "小于 20%",
+        "小于 15%",
+        "小于 10%",
+        "小于 5%"
+      ]
+    },
+    {
+      "key": "content",
+      "label": "内容类型",
+      "group": "creator",
+      "type": "single",
+      "options_verified": true,
+      "help": "近 30 天内达人用于推广商品的内容类型，包括短视频或直播。",
+      "multiple": false,
+      "options": [
+        "全部",
+        "视频数据",
+        "直播数据"
+      ]
+    },
+    {
+      "key": "agency",
+      "label": "达人机构",
+      "group": "creator",
+      "type": "single",
+      "options_verified": true,
+      "help": "",
+      "multiple": false,
+      "options": [
+        "全部",
+        "机构管理",
+        "独立达人"
+      ]
+    },
+    {
+      "key": "level",
+      "label": "达人等级",
+      "group": "creator",
+      "type": "multi",
+      "options_verified": true,
+      "help": "达人等级（0-8）根据上个月达人的活动和 GMV 计算得出",
+      "multiple": true,
+      "options": [
+        "0 级",
+        "1 级",
+        "2 级",
+        "3 级",
+        "4 级",
+        "5 级",
+        "6 级",
+        "7 级"
+      ]
+    },
+    {
+      "key": "language",
+      "label": "内容语言",
+      "group": "creator",
+      "type": "multi",
+      "options_verified": true,
+      "help": "显示位于你所在国家或地区并使用所选语言发布内容的达人。",
+      "multiple": true,
+      "options": [
+        "英语",
+        "西班牙语",
+        "中文"
+      ]
+    },
+    {
+      "key": "expert",
+      "label": "类目专家",
+      "group": "creator",
+      "type": "multi",
+      "options_verified": true,
+      "help": "使用此筛选条件可查看所有带有“类目专家”标签的达人。这些达人深耕单一商品类目发布内容，且过去 60 天内产生的大部分销售额均来自该类目。",
+      "multiple": true,
+      "options": [
+        "健康与养生",
+        "家居",
+        "时尚与造型",
+        "科技、办公与书籍",
+        "美妆个护",
+        "运动与户外"
+      ]
+    },
+    {
+      "key": "fast-growth",
+      "label": "快速成长榜",
+      "type": "checkbox",
+      "options_verified": true,
+      "help": "过去 30 天内交易量、成交额、带货视频数、直播观看次数或粉丝数涨幅最高的前 10% 达人。"
+    },
+    {
+      "key": "not-invited",
+      "label": "过去90天内未获邀请的达人",
+      "type": "checkbox",
+      "options_verified": true,
+      "help": "选择此筛选条件可查看你在过去 90 天内尚未邀请过的达人。"
+    },
+    {
+      "key": "age",
+      "label": "粉丝年龄",
+      "group": "audience",
+      "type": "multi",
+      "options_verified": true,
+      "help": "",
+      "multiple": true,
+      "options": [
+        "18 - 24 岁",
+        "25 - 34 岁",
+        "35 - 44 岁",
+        "45 - 54 岁",
+        "55 岁以上"
+      ]
+    },
+    {
+      "key": "gender",
+      "label": "粉丝性别",
+      "group": "audience",
+      "type": "single",
+      "options_verified": true,
+      "help": "",
+      "multiple": false,
+      "options": [
+        "全部",
+        "女性",
+        "男性"
+      ]
+    },
+    {
+      "key": "followers",
+      "label": "粉丝数",
+      "group": "audience",
+      "type": "range",
+      "options_verified": true,
+      "help": "",
+      "ticks": [
+        "0",
+        "1 万",
+        "10 万",
+        "100 万",
+        "1000 万+"
+      ],
+      "slider_max": 10000000,
+      "operator": "between",
+      "slider": {
+        "control": "native-dual-range",
+        "ticks": [
+          0,
+          10000,
+          100000,
+          1000000,
+          10000000
+        ],
+        "tick_positions": [
+          0,
+          25,
+          50,
+          75,
+          100
+        ],
+        "upper_end_means": "不限上限（1000万+）",
+        "numeric_input": true,
+        "crossing": "滑块不能交叉；手输反向范围提交时拦截"
+      }
+    },
+    {
+      "key": "gmv",
+      "label": "GMV",
+      "group": "performance",
+      "type": "multi",
+      "options_verified": true,
+      "help": "过去 30 天内达人通过直播、带货视频或商品橱窗产生的成交额。",
+      "multiple": true,
+      "options": [
+        "$0-$5k",
+        "$5k-$25K",
+        "$25K-$60K",
+        "$60K-$150K",
+        "$150K+"
+      ]
+    },
+    {
+      "key": "units",
+      "label": "成交件数",
+      "group": "performance",
+      "type": "multi",
+      "options_verified": true,
+      "help": "过去 30 天内达人通过直播、带货视频或商品橱窗产生的成交件数。",
+      "multiple": true,
+      "options": [
+        "0-10",
+        "10-100",
+        "100-1000",
+        "1000+"
+      ]
+    },
+    {
+      "key": "video-views",
+      "label": "平均每个视频的播放量",
+      "group": "performance",
+      "type": "threshold",
+      "options_verified": true,
+      "help": "",
+      "ticks": [
+        "0",
+        "100",
+        "1000",
+        "1 万",
+        "10 万+"
+      ],
+      "values": [
+        0,
+        100,
+        1000,
+        10000,
+        100000
+      ],
+      "slider_max": 100000,
+      "operator": "gt",
+      "extra_label": "按带货视频数筛选",
+      "slider": {
+        "control": "native-dual-range",
+        "ticks": [
+          0,
+          100,
+          1000,
+          10000,
+          100000
+        ],
+        "tick_positions": [
+          0,
+          25,
+          50,
+          75,
+          100
+        ],
+        "upper_end_means": "不限上限（10万+）",
+        "numeric_input": true,
+        "crossing": "滑块不能交叉；手输反向范围提交时拦截",
+        "lower_application": "后台原生严格大于下限",
+        "upper_application": "用户新增卡片核验上限，含边界，不冒充后台原生能力",
+        "missing": "待核验，不计入合格"
+      }
+    },
+    {
+      "key": "live-views",
+      "label": "平均每场直播的观看人数",
+      "group": "performance",
+      "type": "threshold",
+      "options_verified": true,
+      "help": "",
+      "ticks": [
+        "0",
+        "100",
+        "1000",
+        "1 万",
+        "10 万+"
+      ],
+      "values": [
+        0,
+        100,
+        1000,
+        10000,
+        100000
+      ],
+      "slider_max": 100000,
+      "operator": "gt",
+      "extra_label": "按带货直播筛选"
+    },
+    {
+      "key": "engagement",
+      "label": "互动率",
+      "group": "performance",
+      "type": "threshold",
+      "options_verified": true,
+      "help": "过去 30 天内帖子互动（点赞、分享和评论）数量除以视频的平均播放总量。",
+      "ticks": [
+        "0%",
+        "5%",
+        "10%",
+        "20+%"
+      ],
+      "values": [
+        0,
+        5,
+        10,
+        20
+      ],
+      "slider_max": 20,
+      "operator": "gt",
+      "unit": "%",
+      "extra_label": "按带货视频数筛选"
+    },
+    {
+      "key": "posting",
+      "label": "预计发布率",
+      "group": "performance",
+      "type": "single",
+      "options_verified": true,
+      "help": "这些类别表示达人在收到样品后发布带货视频或直播的频率。",
+      "multiple": false,
+      "options": [
+        "全部",
+        "合格",
+        "良好",
+        "优秀"
+      ]
+    },
+    {
+      "key": "brand",
+      "label": "品牌合作",
+      "group": "performance",
+      "type": "catalog",
+      "options_verified": true,
+      "help": "过去 30 天内达人通过带货视频、商品橱窗或直播进行推广和销售的品牌。",
+      "multiple": true,
+      "options": [
+        "the day",
+        "CeraVe",
+        "rom&nd",
+        "MageGee",
+        "NUXE",
+        "MEDIHEAL",
+        "k&f concept",
+        "Nature Made",
+        "POEDAGAR",
+        "BEILI",
+        "MICHAEL KORS",
+        "BLACK RABBIT",
+        "SANDA",
+        "ibloom",
+        "BRITA",
+        "U&A",
+        "comobebe",
+        "NOW",
+        "hyperkin",
+        "wantjoin",
+        "maXpeedingrods",
+        "ALIVER",
+        "YANKEE CANDLE",
+        "FlyDiGi",
+        "CAROTE",
+        "BIAT",
+        "JYX",
+        "Moroccanoil",
+        "FEELWORLD",
+        "GAOY",
+        "W.DRESSROOM",
+        "HP",
+        "oxyenergy",
+        "FMS Hobby",
+        "COWSAR",
+        "BAGSMART",
+        "CLIO",
+        "CHARLOTTE TILBURY",
+        "BioGaia",
+        "BLISS",
+        "LE BONHEUR",
+        "jjrc",
+        "floe",
+        "buffalo",
+        "wrangler",
+        "YUNJAC",
+        "AOC",
+        "versed",
+        "LIGE",
+        "SOME BY MI",
+        "TELESIN",
+        "UGREEN",
+        "SprayGround",
+        "red chamber",
+        "omie",
+        "kapvoe",
+        "youtheory",
+        "GLD",
+        "KKV",
+        "Picun",
+        "netflix",
+        "NUBWO",
+        "oneisall",
+        "BOYA",
+        "Colgate",
+        "Legion",
+        "FUNSNAP",
+        "FORSINING",
+        "GUCCI",
+        "BOBBI BROWN",
+        "tarte",
+        "COOKER KING",
+        "GAN",
+        "SKG",
+        "ocean blue",
+        "SmallRig",
+        "BIOSTIME",
+        "SKMEI",
+        "Marvis",
+        "Rare Beauty",
+        "Educational Insights",
+        "YAYA",
+        "iwatch",
+        "Conair",
+        "JoyCat",
+        "canmake",
+        "Recci",
+        "Realwill",
+        "NATROL",
+        "PopSockets",
+        "VEKEN",
+        "HSTNBVEO",
+        "insular",
+        "ONSHINE",
+        "harpercollins",
+        "smashbox",
+        "Samsonite",
+        "KISMILE",
+        "Bear",
+        "podoru",
+        "leleyu",
+        "ROEL-PLAY",
+        "Naturalizer",
+        "al rehab",
+        "colorgram",
+        "ROC",
+        "MAC",
+        "NEEWER",
+        "UGG",
+        "BURBERRY",
+        "Arencia",
+        "HELLOLEIBOO",
+        "SWANSON",
+        "CENPIN",
+        "Biore",
+        "ILSO",
+        "Obagi",
+        "MOVA",
+        "JOYYE",
+        "bonsaii",
+        "LLANO",
+        "pritom",
+        "tenlamp",
+        "WARMKISS",
+        "canopy",
+        "Teeny Baby",
+        "VIKING",
+        "Comix",
+        "ANBERNIC",
+        "OPK",
+        "JOOAN",
+        "WalkingPad",
+        "SEENDA",
+        "ZEALOT",
+        "enzymedica",
+        "little tikes",
+        "TOMS",
+        "SWISSE",
+        "OGX",
+        "NEXTORCH",
+        "CAGIE",
+        "HiSmile",
+        "Elizabeth Arden",
+        "PETCIRCLE",
+        "KKC",
+        "innisfree",
+        "DOSS",
+        "AMBROSIA",
+        "SKIL",
+        "JAMAY",
+        "Lansinoh",
+        "RSH",
+        "PYY",
+        "NEW BALANCE",
+        "Logitech",
+        "GravaStar",
+        "wb",
+        "Lemoda",
+        "dearlomum",
+        "QIC",
+        "eureka",
+        "case-mate",
+        "head&shoulders",
+        "viz media",
+        "SKYWORTH",
+        "MUSCLETECH",
+        "HERORANGE",
+        "SHARK",
+        "VEADONS",
+        "TCL",
+        "WEIXIER",
+        "GNMN",
+        "AOV",
+        "jarrow formulas",
+        "Crayola",
+        "bluewow",
+        "VGR",
+        "Uwant",
+        "XTOOL",
+        "AMIRO",
+        "CLOROX",
+        "Evereden",
+        "Biobor",
+        "CLUCI",
+        "Moleskine",
+        "Lee",
+        "Swiss Arabian",
+        "ZHENMI",
+        "iuv",
+        "UCANBE",
+        "McCormick",
+        "Cheerble",
+        "usmile",
+        "BISSELL",
+        "flimeal",
+        "ANKER",
+        "POP MART",
+        "parfums de marly",
+        "SADI",
+        "EZVALO",
+        "Fur",
+        "Doublepow",
+        "Snoopy",
+        "HYPERX",
+        "billabong",
+        "Robotime",
+        "SR",
+        "Lesies",
+        "Diesel",
+        "MAANGE",
+        "DONNER",
+        "papa recipe",
+        "d'alba",
+        "PGYTECH",
+        "ONNAIS",
+        "milk makeup",
+        "CJC",
+        "spaco",
+        "TOEI ANIMATION",
+        "Aucma",
+        "sol de janeiro",
+        "REDRAGON",
+        "Nickelodeon",
+        "Hollyland",
+        "ELROEL",
+        "LISM",
+        "legendairy milk",
+        "52TOYS",
+        "iWALK",
+        "Innersy",
+        "ECOFLOW",
+        "furnimart",
+        "CREALITY 3D",
+        "AXE",
+        "iHealth",
+        "urban decay",
+        "DKNY",
+        "LAMY",
+        "BIOSSANCE",
+        "GUESS",
+        "Dr.Althea",
+        "popfeel",
+        "CHAMPION",
+        "VLANDO",
+        "benchmade",
+        "Sunnylife",
+        "ILLIYOON",
+        "PAW PATROL",
+        "ORICO",
+        "Gerber",
+        "Hola",
+        "Dove",
+        "BRAGG",
+        "aleader",
+        "AMA",
+        "PALMER'S",
+        "LUMINTOP",
+        "W7",
+        "KNIGHT",
+        "Hasbro",
+        "STITCH",
+        "round lab",
+        "BEFEN",
+        "BANGSON",
+        "hTC",
+        "Cell Fusion C",
+        "FIFA",
+        "MAKE UP FOR EVER",
+        "Veet",
+        "Beauty Creations",
+        "sports research",
+        "ajmal",
+        "NOVUS",
+        "Amos",
+        "truskin",
+        "Nodpod",
+        "magefy",
+        "COUNTRY LIFE",
+        "PURINA ONE",
+        "UMAY",
+        "PSYCHE",
+        "EKF",
+        "osmo",
+        "PEANUTS",
+        "PURITO",
+        "cosnori",
+        "TYMO",
+        "GTT",
+        "MERACH",
+        "VGO",
+        "AIYISHI",
+        "JIMMY CHOO",
+        "SUNUV",
+        "Solid Gold",
+        "centellian24",
+        "Farmacy Beauty",
+        "DRIPDROP",
+        "Aniplex",
+        "Vitamix",
+        "vifon",
+        "TOPMELON",
+        "JETech",
+        "FXW",
+        "Monster Jam",
+        "VICKS",
+        "uncommon goods",
+        "MLB",
+        "Westinghouse",
+        "LANBENA",
+        "MOOKA",
+        "Minions",
+        "i'm meme",
+        "AULA",
+        "HKH",
+        "ONEMIX",
+        "UEU",
+        "Supernova",
+        "languo",
+        "BETTY BOOP",
+        "VIISHOW",
+        "KARAT",
+        "KALIDI",
+        "Oris",
+        "KKB",
+        "Haakaa",
+        "STANLEY",
+        "eos",
+        "Neutrogena",
+        "niceplus",
+        "inflation",
+        "HLR",
+        "POHIR",
+        "Evian",
+        "HDE",
+        "Puma",
+        "benefit",
+        "AKIRA",
+        "ANENG",
+        "quick surf",
+        "Lamborghini",
+        "TORRAS",
+        "LASTAR",
+        "Living Proof",
+        "SHOKZ",
+        "Bioderma",
+        "OLEVS",
+        "WORKPRO",
+        "UR",
+        "WELLNESS",
+        "wellage",
+        "tokidoki",
+        "VT Cosmetics",
+        "dfang",
+        "Subella",
+        "ESR",
+        "Exploding Kittens",
+        "Comfier",
+        "JOCKMAIL",
+        "Hello",
+        "YND",
+        "Floradix",
+        "itutn",
+        "NONGSHIM",
+        "WOSADO",
+        "Belkin",
+        "ZIPPO",
+        "Keychron",
+        "Evita Peroni",
+        "Reebok",
+        "GEYA",
+        "secrethem",
+        "Varmilo",
+        "RYL",
+        "Oakley",
+        "ISHOW",
+        "Pigeon",
+        "Kodak",
+        "NINJA",
+        "Columbia",
+        "MOKO",
+        "fenty beauty",
+        "Aussie",
+        "Keep",
+        "Dermalogica",
+        "Dickies",
+        "KUNLUN",
+        "Acer",
+        "GNC",
+        "LOFREE",
+        "DreamCat",
+        "Midea",
+        "Minecraft",
+        "PlayStation",
+        "Cuisinart",
+        "Clarins",
+        "TFIT",
+        "SAKURA",
+        "essie",
+        "REMINGTON",
+        "nama"
+      ],
+      "catalog_scope": "2026-10-19后台空搜索下拉列表，400项；后台搜索可能返回其他结果"
+    }
+  ],
+  "counts": {
+    "fields": 20,
+    "dropdowns": 17,
+    "checkboxes": 2,
+    "category_parents": 27,
+    "category_children": 199,
+    "brand_options": 400,
+    "card_filters": 1
+  },
+  "category_recheck": {
+    "date": "2026-10-19",
+    "parents": 27,
+    "children": 199,
+    "new_ids": 0,
+    "missing_ids": 0,
+    "deeper_nodes": 0
+  },
+  "presentation": "按紫鸟原顺序三列排列17项，两个勾选项并排，PPS在底部；字段选项按需展开，所有大项默认可见；窄屏改两列或单列",
+  "layout_order": [
+    "category",
+    "commission",
+    "content",
+    "agency",
+    "level",
+    "language",
+    "expert",
+    "checkboxes",
+    "age",
+    "gender",
+    "followers",
+    "gmv",
+    "units",
+    "video-views",
+    "live-views",
+    "engagement",
+    "posting",
+    "brand",
+    "pps"
+  ]
+}
