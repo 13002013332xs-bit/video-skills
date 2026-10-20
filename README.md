@@ -1,16 +1,21 @@
-# 视频技能包（Codex Skills）
+# 项目技能库（Codex Skills）
 
-四个 Codex 技能：照着参考视频剪带货短视频、给拍摄素材自动命名分类、给 TikTok 达人批量发建联私信、
-用即梦（Dreamina）出图出视频。
+按项目分类维护技能；技能目录保留在 `skills/`，安装路径不变。
 
-## 包含什么
+## 按项目查找
 
-| 技能 | 作用 |
-|---|---|
-| `skills/short-video-production` | 照着一条参考视频剪片：拆解镜头结构 → 从素材库选片 → 输出可在剪映里编辑的草稿 → 渲染预览 |
-| `skills/clip-naming` | 看完一整段拍摄素材，按你的命名习惯起名（0–15 字），并自动分到「开头/中间/结尾」 |
-| `skills/tiktok-dm-outreach` | 紫鸟17项完整筛选与对话点选面板、粉丝/视频播放量双滑块、PPS实际评分核验，以及网页/手机建联、持久化核验与台账；外发按当次授权 |
-| `skills/dreamina-cli` | 用即梦（Dreamina）CLI 出图 / 出视频：登录与授权、会话管理、任务历史、文生图 / 图生图 / 文生视频 / 首尾帧视频 |
+| 项目分类 | 技能 | 作用 |
+|---|---|---|
+| [找达人](projects/creator-outreach/README.md) | [tiktok-dm-outreach](skills/tiktok-dm-outreach/SKILL.md) | 店铺及商品图片选择、PPS和内容筛选、批量邀约、重叠处理、紫鸟私信 |
+| 剪辑视频 | [short-video-production](skills/short-video-production/SKILL.md) | 参考视频拆解、选素材、剪映草稿及预览 |
+| 剪辑视频 · 素材整理 | [clip-naming](skills/clip-naming/SKILL.md) | 观看拍摄素材并命名，按开头/中间/结尾归类 |
+| 图片与视频生成 | [dreamina-cli](skills/dreamina-cli/SKILL.md) | 即梦登录、会话、任务及图片/视频生成 |
+
+新增技能时先登记所属项目；一个技能保留一个安装目录，由项目目录提供分类入口，不复制成多个版本。
+
+## 分享“找达人”功能
+
+具体安装、店铺选择和首次连接步骤见 [找达人项目说明](projects/creator-outreach/README.md)。分享版包含授权的店铺商品目录：选泽凡显示对应商品及图片；辉翔达及另两家等待有权限的人补充。每轮话术和佣金自行填写，登录状态不随包分享。
 
 ## 安装
 
@@ -22,7 +27,7 @@
 ~/.codex/skills/
 ```
 
-然后重启 Codex。
+然后在下一轮对话中调用对应技能；若仍未识别，再重启 Codex。
 
 ### 方式二：用 Codex 的 skill-installer
 
@@ -48,7 +53,7 @@
 新增两项能力：**高光片段自动选取**（`scripts/pick_highlights.py`，思路参考 Anil-matcha/AI-Youtube-Shorts-Generator，MIT）
 、**多视频结构挖掘→自动出脚本**（`scripts/mine_structures.py`）与**语音克隆/TTS 路线指南**（`references/voice-cloning.md`，含 MiMo MCP / voice-pro / clone-voice 三条路线与授权红线）。
 
-## 需要准备的环境
+## 剪辑视频项目需要准备的环境
 
 **第一次用：先让 Codex 问你几个目录在哪**（素材根目录、剪映草稿目录、capcut-mate 位置），
 它会写进 `~/.config/clip-pipeline/config.json`，之后脚本都从这里读，不用改代码：
@@ -100,10 +105,10 @@ bash skills/clip-naming/scripts/setup_vision.sh
 
 ## 注意
 
-- 脚本里的路径是原作者的绝对路径，**换机器要改**（参见每个技能里的说明）。
+- 环境依赖按所选技能准备；只使用找达人功能无需配置剪映、ffmpeg或百炼视觉。剪辑相关旧脚本中的机器路径需按各技能说明配置。
 - 本仓库不含任何账号凭据；用云端视觉模型时，画面帧会发送到对应服务商。
 - `tiktok-dm-outreach` 走浏览器自动化，需要你自己已经登录的 TikTok 会话；
-  仓库里不含任何账号、登录信息、达人名单或话术文案。
+  仓库里不含登录凭据、达人名单、实际话术或佣金；授权的店铺商品名称及图片由独立目录提供。
 
 ## 日常用法（clip-naming）
 
