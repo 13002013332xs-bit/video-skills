@@ -26,6 +26,14 @@
 @media(max-width:560px) { #invite-config-panel .invite-fields { grid-template-columns:1fr; } }
 </style>
 <div id="invite-config-panel">
+  <section class="invite-section" aria-labelledby="invite-store-heading">
+    <h3 id="invite-store-heading">选择店铺</h3>
+    <label class="form-label" for="invite-store">本次使用的店铺</label>
+    <select id="invite-store" class="form-select"><option value="">请选择店铺</option></select>
+    <div class="invite-toolbar"><span id="invite-store-status" class="text-small" role="status" aria-live="polite"></span><button id="invite-store-connect" type="button" class="btn" disabled>接通所选店铺</button></div>
+    <div id="invite-pending-stores" class="text-small" hidden></div>
+  </section>
+  <div id="invite-workflow" hidden>
   <section class="invite-section" aria-labelledby="invite-details-heading">
     <h3 id="invite-details-heading">1　创建邀请</h3>
     <div class="invite-fields">
@@ -72,8 +80,9 @@
   </section>
   <ul id="invite-errors" class="invite-errors" role="alert" hidden></ul>
   <div class="viz-row"><button id="invite-confirm" type="button" class="btn btn-primary">确认本次邀约配置</button><span id="invite-status" role="status" aria-live="polite"></span></div>
+  </div>
 </div>
-<script type="application/json" id="invite-catalog-data">{"products":[],"shopDate":"","language":"","contactEmail":"","sourceDate":"","contextKey":""}</script>
+<script type="application/json" id="invite-catalog-data">{"stores":[],"pendingStoreCount":0,"products":[],"shopDate":"","language":"","contactEmail":"","sourceDate":"","contextKey":""}</script>
 <script>
 (function (root) {
   'use strict';
@@ -160,28 +169,62 @@
   const $=id=>root.querySelector('#'+id);
   const R=window.InviteRules;
   const data=JSON.parse(document.getElementById('invite-catalog-data').textContent);
-  const products=Array.isArray(data.products)?data.products:[];
-  const catalog=new Map(products.map(p=>[p.id,p]));
-  const stateType='ziniao-invitation-config-v1';
+  const stores=Array.isArray(data.stores)?data.stores:(Array.isArray(data.products)&&data.products.length?[{...data,key:data.storeKey||'current-store',name:data.storeName||'当前已确认店铺',catalogStatus:'ready'}]:[]);
+  const storeMap=new Map(stores.map(s=>[String(s.key),s]));
+  let activeStore=null,products=[],catalog=new Map();
+  const stateType='ziniao-invitation-config-v2';
   const writeToken='draft-'+Math.random().toString(36).slice(2);
   let writeRevision=0;
-  let state={shopDate:data.shopDate,language:data.language||'',batchNumber:data.batchNumber??null,email:data.contactEmail,phone:'',message:'',ziniaoMessage:'',contentType:'带货视频',provideSamples:true,sampleMode:'follow',products:[]};
+  const freshState=s=>({storeKey:s?String(s.key):'',shopDate:s?.shopDate||'',language:s?.language||'',batchNumber:s?.batchNumber??null,email:s?.contactEmail||'',phone:'',message:'',ziniaoMessage:'',contentType:'带货视频',provideSamples:true,sampleMode:'follow',products:[]});
+  let state=freshState(null);
   let pickerIDs=new Set(),page=1,pageSize=20,search='';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const short=s=>s.length>64?s.slice(0,64)+'…':s;
   const productInfo=p=>`<div class="invite-product">${p.imageData?`<img class="invite-thumb" src="${esc(p.imageData)}" alt="${esc(p.name)}"><span class="text-small" data-image-fallback hidden>图片暂未加载</span>`:'<span class="text-small">暂无图片</span>'}<div><details><summary>${esc(short(p.name))}</summary><span>${esc(p.name)}</span></details><small class="text-small">ID: ${esc(p.id)}</small></div></div>`;
   root.addEventListener('error',e=>{if(e.target.matches?.('.invite-thumb')){e.target.hidden=true;e.target.nextElementSibling.hidden=false;}},true);
+  stores.forEach(s=>{const o=document.createElement('option');o.value=String(s.key);o.textContent=s.name;o.disabled=s.catalogStatus==='no-access';$('invite-store').appendChild(o);});
+  const pending=Number(data.pendingStoreCount)||0;
+  $('invite-pending-stores').hidden=!pending;
+  $('invite-pending-stores').textContent=pending?'另有 '+pending+' 家店铺，待有权限的人补充。':'';
+  function activateStore(key,openPicker=false) {
+    activeStore=storeMap.get(String(key))||null;
+    products=Array.isArray(activeStore?.products)?activeStore.products:[];
+    catalog=new Map(products.map(p=>[p.id,p]));
+    state=freshState(activeStore);pickerIDs=new Set();page=1;search='';
+    $('invite-product-search').value='';$('invite-catalog-body').innerHTML='';
+    $('invite-status').textContent='';showErrors([]);
+    $('invite-store').value=state.storeKey;
+    const ready=activeStore?.catalogStatus==='ready'&&products.length>0;
+    $('invite-workflow').hidden=!ready;
+    $('invite-picker').hidden=!(ready&&openPicker);
+    $('invite-store-connect').disabled=!activeStore||activeStore.catalogStatus==='no-access';
+    $('invite-store-status').textContent=!activeStore?(stores.length?'选择店铺后显示对应商品。':'待从当前使用者的紫鸟补充店铺。'):ready?activeStore.name+' · 已保存 '+products.length+' 款商品'+(activeStore.sourceDate?' · 目录日期 '+activeStore.sourceDate:''):activeStore.name+' · 商品待同步';
+    paint();if(ready&&openPicker)pickerRows();
+  }
+  $('invite-store').addEventListener('change',e=>{activateStore(e.target.value,true);save();});
+  $('invite-store-connect').addEventListener('click',async()=>{
+    if(!activeStore||activeStore.catalogStatus==='no-access')return;
+    if(!window.openai?.sendFollowUpMessage){$('invite-store-status').textContent='当前预览不支持提交到对话。';return;}
+    const button=$('invite-store-connect');button.disabled=true;
+    const selection={storeKey:state.storeKey,storeName:activeStore.name,storeId:activeStore.storeId||null,expectedName:activeStore.expectedName||null};
+    try {
+      await window.openai.sendFollowUpMessage({title:'使用所选店铺',prompt:'本轮选择店铺：'+JSON.stringify(selection)+'。请先用控制接口连接或复用该店铺，核对实际店铺身份并进入可操作的查找达人页，再让我设置后台条件；设置后不刷新、不重开、不重置。没有该店铺商品目录时从此店铺读取实际商品和真实图片，私有保存后更新选品面板，不借用其他店铺数据。不知道准确店铺ID时先读取有权访问的店铺并匹配名称，不猜ID。这个选择仅授权连接和读取，不授权邀约、私信或改其他店铺。'});
+      $('invite-store-status').textContent=activeStore.name+' · 已提交连接请求';
+    } catch(e){$('invite-store-status').textContent='未提交成功，请重试。';}
+    finally {button.disabled=!activeStore;}
+  });
   function restore(saved) {
     const snapshot=saved?.modelContent || saved;
     if (snapshot?.type!==stateType || snapshot.contextKey!==data.contextKey) return false;
     const c=snapshot.config;
-    if (!c || !Array.isArray(c.products)) return false;
-    state={...state,...c,shopDate:data.shopDate,language:data.language||'',batchNumber:data.batchNumber??null,email:data.contactEmail,phone:'',products:c.products.filter(p=>p&&catalog.has(p.id)&&!catalog.get(p.id).unavailable).map(p=>({id:p.id,standardRate:String(p.standardRate??''),adEnabled:!!p.adEnabled,adRate:String(p.adRate??'')}))};
+    if (!c || !Array.isArray(c.products) || !storeMap.has(snapshot.storeKey) || c.storeKey!==snapshot.storeKey || snapshot.storeContextKey!==storeMap.get(snapshot.storeKey).contextKey) return false;
+    activateStore(snapshot.storeKey);
+    state={...state,...c,...{storeKey:String(activeStore.key),shopDate:activeStore.shopDate||'',language:activeStore.language||'',batchNumber:activeStore.batchNumber??null,email:activeStore.contactEmail||'',phone:''},products:c.products.filter(p=>p&&catalog.has(p.id)&&!catalog.get(p.id).unavailable).map(p=>({id:p.id,standardRate:String(p.standardRate??''),adEnabled:!!p.adEnabled,adRate:String(p.adRate??'')}))};
     ['message','ziniaoMessage'].forEach(key=>state[key]=String(c[key]??''));
     return true;
   }
   function snapshot() {
-    return {type:stateType,contextKey:data.contextKey,writeToken,writeRevision,config:JSON.parse(JSON.stringify(state))};
+    return {type:stateType,contextKey:data.contextKey,storeKey:state.storeKey,storeContextKey:activeStore?.contextKey||'',writeToken,writeRevision,config:JSON.parse(JSON.stringify(state))};
   }
   function save() {
     if (window.openai?.setWidgetState) {
@@ -268,19 +311,20 @@
     state.products=state.products.filter(p=>p.id!==b.dataset.remove);selectedRows();save();
   });
   $('invite-confirm').addEventListener('click',async()=>{
+    if(!activeStore||activeStore.catalogStatus!=='ready'){showErrors(['请先选择并同步本次店铺。']);return;}
     const errors=R.validate(state,{requireAutomaticFields:false,requireZiniaoMessage:true});showErrors(errors);if(errors.length)return;
-    const configuration={...state,dateBasis:'紫鸟后台店铺日期',automaticFields:{language:'跟随本次达人筛选语言',email:'沿用紫鸟系统自带邮箱',phone:'留空',dates:'执行时读取店铺日期，截止加20天',batchNumber:'按该店铺当天轮次递增，同轮恢复复用'},invitationName:state.language?R.inviteName(state.shopDate,state.language,state.batchNumber):null,expiresOn:R.endDate(state.shopDate),products:state.products.map(row=>({...row,name:catalog.get(row.id).name,standardRate:Number(row.standardRate).toFixed(2),adRate:row.adEnabled?Number(row.adRate).toFixed(2):null})),overlapPolicy:'同一达人任一旧邀约为自动批且属店铺当月时，优先从本次邀请移除对应达人，保留原邀约；当月其他非自动批（包括手动）及非当月邀约移动至本次。日期或身份不明先核对。'};
+    const configuration={...state,storeName:activeStore.name,storeId:activeStore.storeId||null,expectedName:activeStore.expectedName||null,dateBasis:'紫鸟后台店铺日期',automaticFields:{language:'跟随本次达人筛选语言',email:'沿用紫鸟系统自带邮箱',phone:'留空',dates:'执行时读取店铺日期，截止加20天',batchNumber:'按该店铺当天轮次递增，同轮恢复复用'},invitationName:state.language?R.inviteName(state.shopDate,state.language,state.batchNumber):null,expiresOn:R.endDate(state.shopDate),products:state.products.map(row=>({...row,name:catalog.get(row.id).name,standardRate:Number(row.standardRate).toFixed(2),adRate:row.adEnabled?Number(row.adRate).toFixed(2):null})),overlapPolicy:'同一达人任一旧邀约为自动批且属店铺当月时，优先从本次邀请移除对应达人，保留原邀约；当月其他非自动批（包括手动）及非当月邀约移动至本次。日期或身份不明先核对。'};
     save();
     if(!window.openai?.sendFollowUpMessage){$('invite-status').textContent='当前预览不支持提交到对话。';return;}
     const button=$('invite-confirm');button.disabled=true;$('invite-status').textContent='正在提交配置…';
     try {
-      await window.openai.sendFollowUpMessage({title:'确认本次邀约配置',prompt:'我确认以下本次邀约配置，包括邀请文本、独立的紫鸟私信、商品佣金和免费样品审批方式。代理先接通控制接口进入可操作的查找达人页，再由用户在该窗口设置原生条件并保持不刷新、不重开、不重置。对话确认本轮筛选方式（快速筛选/内容复核）、PPS和邀约配置；本面板只确认邀约配置，不代替筛选方式和PPS的本轮确认，明确文字确认同样有效。同轮已确认项不重复问，旧草稿不算本轮确认。message是邀请文本，ziniaoMessage是合作邀请成功后随邀请卡分享的紫鸟私信，两者分别确认，不互相替代。请记录并用于本次邀约准备；这次提交只确认配置，不是向达人发送邀请的指令，也不授权发送私信。实际发送时按紫鸟后台店铺日期生成自动批MMDD（语言）N，N为该店铺当天批次，同轮恢复复用；核对截止日期和当月重叠；邀请成功立即进入向达人发送消息，对可选名单分享一次；发送后直接汇报是否完成，不进行单人抽查或消息数量限制排查。\n'+JSON.stringify(configuration,null,2)});
+      await window.openai.sendFollowUpMessage({title:'确认本次邀约配置',prompt:'我确认以下本次邀约配置，包括邀请文本、独立的紫鸟私信、商品佣金和免费样品审批方式。先按本配置选择的店铺核对身份，代理接通该店铺控制接口进入可操作的查找达人页，再由用户在该窗口设置原生条件并保持不刷新、不重开、不重置。对话确认本轮筛选方式（快速筛选/内容复核）、PPS和邀约配置；本面板只确认邀约配置，不代替筛选方式和PPS的本轮确认，明确文字确认同样有效。同轮已确认项不重复问，旧草稿不算本轮确认。message是邀请文本，ziniaoMessage是合作邀请成功后随邀请卡分享的紫鸟私信，两者分别确认，不互相替代。请记录并用于本次邀约准备；这次提交只确认配置，不是向达人发送邀请的指令，也不授权发送私信。实际发送时按紫鸟后台店铺日期生成自动批MMDD（语言）N，N为该店铺当天批次，同轮恢复复用；核对截止日期和当月重叠；邀请成功立即进入向达人发送消息，对可选名单分享一次；发送后直接汇报是否完成，不进行单人抽查或消息数量限制排查。\n'+JSON.stringify(configuration,null,2)});
       $('invite-status').textContent='配置已提交到对话。';
     } catch(e) {$('invite-status').textContent='配置未提交成功，请重试。';}
     finally {button.disabled=false;}
   });
   if(!restore(window.openai?.widgetState))restore(data.initialDraft);
-  paint();
+  if(!activeStore)activateStore('');else paint();
   window.addEventListener('openai:set_globals',e=>{
     const saved=e.detail?.globals?.widgetState;
     const incoming=saved?.modelContent||saved;
