@@ -23,7 +23,7 @@ def build(catalog_path, output_path, round_key=None):
     for original in stores:
         store = copy.deepcopy(original)
         for field in ('initialDraft', 'message', 'ziniaoMessage', 'contactEmail',
-                      'shopDate', 'language', 'batchNumber'):
+                      'shopDate', 'namingDate', 'language', 'batchNumber'):
             store.pop(field, None)
         store['contextKey'] = round_key + ':' + str(store['key'])
         data['stores'].append(store)

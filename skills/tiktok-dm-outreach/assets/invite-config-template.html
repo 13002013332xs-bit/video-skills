@@ -37,7 +37,7 @@
   <section class="invite-section" aria-labelledby="invite-details-heading">
     <h3 id="invite-details-heading">1　创建邀请</h3>
     <div class="invite-fields">
-      <details class="invite-span"><summary>自动填写信息</summary><dl class="invite-auto-values"><div><dt>店铺日期</dt><dd id="invite-shop-date"></dd></div><div><dt>语言</dt><dd id="invite-language"></dd></div><div><dt>邀请名称</dt><dd id="invite-name"></dd></div><div><dt>有效期截至</dt><dd id="invite-end-date"></dd></div><div><dt>电子邮箱</dt><dd id="invite-email">沿用紫鸟系统自带邮箱</dd></div><div><dt>电话</dt><dd>留空</dd></div></dl></details>
+      <details class="invite-span"><summary>自动填写信息</summary><dl class="invite-auto-values"><div><dt>中国日期（命名）</dt><dd id="invite-naming-date"></dd></div><div><dt>店铺日期（有效期）</dt><dd id="invite-shop-date"></dd></div><div><dt>语言</dt><dd id="invite-language"></dd></div><div><dt>邀请名称</dt><dd id="invite-name"></dd></div><div><dt>有效期截至</dt><dd id="invite-end-date"></dd></div><div><dt>电子邮箱</dt><dd id="invite-email">沿用紫鸟系统自带邮箱</dd></div><div><dt>电话</dt><dd>留空</dd></div></dl></details>
       <div class="invite-span"><div class="invite-label"><label class="form-label" for="invite-message">邀请文本</label><span id="invite-message-count" class="text-small tabular-nums" aria-live="polite">0/500</span></div><textarea id="invite-message" class="form-control" rows="6" maxlength="500" placeholder="在这里填写本次邀请内容"></textarea></div>
       <div><label class="form-label" for="invite-content-type">内容形式</label><select id="invite-content-type" class="form-select"><option value="带货视频">带货视频</option><option value="带货直播">带货直播</option><option value="暂无偏好">暂无偏好</option></select></div>
     </div>
@@ -99,6 +99,11 @@
     date.setUTCDate(date.getUTCDate() + 20);
     return date.toISOString().slice(0,10);
   }
+  function chinaDate(at=new Date()) {
+    const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(at);
+    const values=Object.fromEntries(parts.map(p=>[p.type,p.value]));
+    return `${values.year}-${values.month}-${values.day}`;
+  }
   function inviteName(start,language,batchNumber) {
     if (!dateParts(start) || !Number.isSafeInteger(batchNumber) || batchNumber<1) return '';
     return `自动批${start.slice(5,7)}${start.slice(8,10)}（${String(language || '').trim()}）${batchNumber}`;
@@ -111,10 +116,11 @@
   function validate(c,options={}) {
     const errors=[];
     if (options.requireAutomaticFields!==false) {
+      if (!dateParts(c.namingDate) || c.namingDate!==chinaDate()) errors.push('请核对当前中国日期（Asia/Shanghai），不要用店铺日期或旧草稿命名。');
       if (!dateParts(c.shopDate)) errors.push('请核对紫鸟后台的店铺日期。');
       if (!String(c.language || '').trim()) errors.push('请核对本次筛选语言。');
       if (!Number.isSafeInteger(c.batchNumber) || c.batchNumber<1) errors.push('请核对当天批次编号。');
-      if (count(inviteName(c.shopDate,c.language,c.batchNumber))>30) errors.push('邀请名称超过30字符，请核对生成规则。');
+      if (count(inviteName(c.namingDate,c.language,c.batchNumber))>30) errors.push('邀请名称超过30字符，请核对生成规则。');
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(c.email || '').trim())) errors.push('请核对后台自带的电子邮箱地址。');
     }
     if (!String(c.message || '').trim()) errors.push('请填写本次邀请文本。');
@@ -157,7 +163,7 @@
     if (actions.length && actions.every(a=>a==='move_to_current')) return 'move_to_current';
     return 'pending';
   }
-  const api={endDate,inviteName,count,rateOK,validate,conflictAction,creatorAction};
+  const api={endDate,chinaDate,inviteName,count,rateOK,validate,conflictAction,creatorAction};
   if (typeof module!=='undefined' && module.exports) module.exports=api;
   else root.InviteRules=api;
 })(typeof window==='undefined'?globalThis:window);
@@ -175,7 +181,7 @@
   const stateType='ziniao-invitation-config-v2';
   const writeToken='draft-'+Math.random().toString(36).slice(2);
   let writeRevision=0;
-  const freshState=s=>({storeKey:s?String(s.key):'',shopDate:s?.shopDate||'',language:s?.language||'',batchNumber:s?.batchNumber??null,email:s?.contactEmail||'',phone:'',message:'',ziniaoMessage:'',contentType:'带货视频',provideSamples:true,sampleMode:'follow',products:[]});
+  const freshState=s=>({storeKey:s?String(s.key):'',shopDate:s?.shopDate||'',namingDate:R.chinaDate(),language:s?.language||'',batchNumber:s?.batchNumber??null,email:s?.contactEmail||'',phone:'',message:'',ziniaoMessage:'',contentType:'带货视频',provideSamples:true,sampleMode:'follow',products:[]});
   let state=freshState(null);
   let pickerIDs=new Set(),page=1,pageSize=20,search='';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -219,7 +225,7 @@
     const c=snapshot.config;
     if (!c || !Array.isArray(c.products) || !storeMap.has(snapshot.storeKey) || c.storeKey!==snapshot.storeKey || snapshot.storeContextKey!==storeMap.get(snapshot.storeKey).contextKey) return false;
     activateStore(snapshot.storeKey);
-    state={...state,...c,...{storeKey:String(activeStore.key),shopDate:activeStore.shopDate||'',language:activeStore.language||'',batchNumber:activeStore.batchNumber??null,email:activeStore.contactEmail||'',phone:''},products:c.products.filter(p=>p&&catalog.has(p.id)&&!catalog.get(p.id).unavailable).map(p=>({id:p.id,standardRate:String(p.standardRate??''),adEnabled:!!p.adEnabled,adRate:String(p.adRate??'')}))};
+    state={...state,...c,...{storeKey:String(activeStore.key),shopDate:activeStore.shopDate||'',namingDate:R.chinaDate(),language:activeStore.language||'',batchNumber:activeStore.batchNumber??null,email:activeStore.contactEmail||'',phone:''},products:c.products.filter(p=>p&&catalog.has(p.id)&&!catalog.get(p.id).unavailable).map(p=>({id:p.id,standardRate:String(p.standardRate??''),adEnabled:!!p.adEnabled,adRate:String(p.adRate??'')}))};
     ['message','ziniaoMessage'].forEach(key=>state[key]=String(c[key]??''));
     return true;
   }
@@ -233,7 +239,7 @@
     }
   }
   function updateHeader() {
-    $('invite-name').textContent=R.inviteName(state.shopDate,state.language||'本次筛选语言',state.batchNumber)||'执行时按店铺日期、语言和当天批次自动生成';
+    $('invite-name').textContent=R.inviteName(state.namingDate,state.language||'本次筛选语言',state.batchNumber)||'执行时按中国日期、语言和当天批次自动生成';
     $('invite-message-count').textContent=R.count(state.message)+'/500';
     $('invite-message-count').classList.toggle('text-destructive',R.count(state.message)>500);
     $('invite-dm-message-count').textContent=R.count(state.ziniaoMessage)+'/500';
@@ -252,6 +258,7 @@
     }).join('');
   }
   function paint() {
+    $('invite-naming-date').textContent=state.namingDate||'执行时读取中国日期';
     $('invite-shop-date').textContent=state.shopDate||'执行时读取紫鸟后台';
     $('invite-language').textContent=state.language||'跟随本次达人筛选语言';
     $('invite-message').value=state.message||'';
@@ -313,7 +320,7 @@
   $('invite-confirm').addEventListener('click',async()=>{
     if(!activeStore||activeStore.catalogStatus!=='ready'){showErrors(['请先选择并同步本次店铺。']);return;}
     const errors=R.validate(state,{requireAutomaticFields:false,requireZiniaoMessage:true});showErrors(errors);if(errors.length)return;
-    const configuration={...state,storeName:activeStore.name,storeId:activeStore.storeId||null,expectedName:activeStore.expectedName||null,dateBasis:'紫鸟后台店铺日期',automaticFields:{language:'跟随本次达人筛选语言',email:'沿用紫鸟系统自带邮箱',phone:'留空',dates:'执行时读取店铺日期，截止加20天',batchNumber:'按该店铺当天轮次递增，同轮恢复复用'},invitationName:state.language?R.inviteName(state.shopDate,state.language,state.batchNumber):null,expiresOn:R.endDate(state.shopDate),products:state.products.map(row=>({...row,name:catalog.get(row.id).name,standardRate:Number(row.standardRate).toFixed(2),adRate:row.adEnabled?Number(row.adRate).toFixed(2):null})),overlapPolicy:'同一达人任一旧邀约为自动批且属店铺当月时，优先从本次邀请移除对应达人，保留原邀约；当月其他非自动批（包括手动）及非当月邀约移动至本次。日期或身份不明先核对。'};
+    const configuration={...state,storeName:activeStore.name,storeId:activeStore.storeId||null,expectedName:activeStore.expectedName||null,dateBasis:'名称与每日批次：中国日期；有效期及重叠：紫鸟店铺日期',namingTimezone:'Asia/Shanghai',automaticFields:{language:'跟随本次达人筛选语言',email:'沿用紫鸟系统自带邮箱',phone:'留空',dates:'命名读取中国日期；截止读取店铺日期加20天',batchNumber:'按该店铺中国日期当天轮次递增，同轮恢复复用'},invitationName:state.language?R.inviteName(state.namingDate,state.language,state.batchNumber):null,expiresOn:R.endDate(state.shopDate),products:state.products.map(row=>({...row,name:catalog.get(row.id).name,standardRate:Number(row.standardRate).toFixed(2),adRate:row.adEnabled?Number(row.adRate).toFixed(2):null})),overlapPolicy:'同一达人任一旧邀约为自动批且属店铺当月时，优先从本次邀请移除对应达人，保留原邀约；当月其他非自动批（包括手动）及非当月邀约移动至本次。日期或身份不明先核对。'};
     save();
     if(!window.openai?.sendFollowUpMessage){$('invite-status').textContent='当前预览不支持提交到对话。';return;}
     const button=$('invite-confirm');button.disabled=true;$('invite-status').textContent='正在提交配置…';
