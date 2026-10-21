@@ -1,3 +1,3 @@
 interface:
-  display_name: "片段命名与归档"
-  short_description: "看完整段素材，按你的习惯起名并分到开头/中间/结尾文件夹"
+  display_name: "素材命名与产品选择"
+  short_description: "磁吸灯、多功能笔等素材按各自习惯命名分类，未指定产品时先选择，支持继续学习新产品"

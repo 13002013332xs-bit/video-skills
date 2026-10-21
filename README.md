@@ -7,8 +7,8 @@
 | 项目分类 | 技能 | 作用 |
 |---|---|---|
 | [找达人](projects/creator-outreach/README.md) | [tiktok-dm-outreach](skills/tiktok-dm-outreach/SKILL.md) | 店铺及商品图片选择、PPS和内容筛选、批量邀约、重叠处理、紫鸟私信 |
-| 剪辑视频 | [short-video-production](skills/short-video-production/SKILL.md) | 参考视频拆解、选素材、剪映草稿及预览 |
-| 剪辑视频 · 素材整理 | [clip-naming](skills/clip-naming/SKILL.md) | 观看拍摄素材并命名，按开头/中间/结尾归类 |
+| [剪辑视频](projects/video-editing/README.md) | [short-video-production](skills/short-video-production/SKILL.md) | 按配音和真实分类选片、原片草稿、预览与独立验收 |
+| [剪辑视频 · 素材命名](projects/video-editing/README.md) | [clip-naming](skills/clip-naming/SKILL.md) | 整体命名习惯、按产品选择规则和细分类，支持新增产品 |
 | 图片与视频生成 | [dreamina-cli](skills/dreamina-cli/SKILL.md) | 即梦登录、会话、任务及图片/视频生成 |
 
 新增技能时先登记所属项目；一个技能保留一个安装目录，由项目目录提供分类入口，不复制成多个版本。
@@ -16,6 +16,10 @@
 ## 分享“找达人”功能
 
 具体安装、店铺选择和首次连接步骤见 [找达人项目说明](projects/creator-outreach/README.md)。分享版包含授权的店铺商品目录：选泽凡显示对应商品及图片；辉翔达及另两家等待有权限的人补充。每轮话术和佣金自行填写，登录状态不随包分享。
+
+## 分享“剪辑与素材命名”
+
+直接分享本仓库链接；产品选择、磁吸灯/多功能笔规则与剪辑流程位于 [剪辑视频项目说明](projects/video-editing/README.md)。肌理画和多功能锤保留各自学习状态。接收者使用自己的素材、路径和账号权限；规则更新不包含原作者的视频或飞书访问权。
 
 ## 安装
 
@@ -55,8 +59,7 @@
 
 ## 剪辑视频项目需要准备的环境
 
-**第一次用：先让 Codex 问你几个目录在哪**（素材根目录、剪映草稿目录、capcut-mate 位置），
-它会写进 `~/.config/clip-pipeline/config.json`，之后脚本都从这里读，不用改代码：
+**按当前任务核对环境。** 仅命名需要可用的看片方式和素材/输出位置；生成草稿才需要核对剪映生成器及目录。先复用已有配置，只有当前步骤确实缺项时再补。旧脚本的配置工具可用：
 
 ```bash
 python3 skills/short-video-production/scripts/pipeline_config.py --init
@@ -75,12 +78,12 @@ bash skills/short-video-production/scripts/setup_check.sh
 | `ffmpeg` / `ffprobe` | 抽帧、转码、拼接 | 装一次即可 |
 | `yt-dlp` | 下载参考视频（TikTok/YouTube/抖音等） | `pipx install yt-dlp` |
 | Python 3 | 跑脚本 | 3.10+ |
-| **百炼 API key（"眼睛"）** | 看懂画面（分镜、选片都靠它） | 见下节 |
+| 可用的画面分析方式 | 看懂完整动作；可复用宿主视觉和有效分析缓存，云端脚本另需配置 | 见所选技能入口 |
 | capcut-mate 适配层 | 生成可编辑的剪映草稿 | 见 `references/jianying-draft.md` |
 | 剪映专业版 | 最终编辑/导出 | 装剪映 |
 | 素材来源 | 你拍的片段（本地文件夹或飞书素材库） | 自己的素材 |
 
-### 配置"眼睛"（必须）
+### 可选云端视觉配置
 
 1. 去 <https://bailian.console.aliyun.com/> 开通阿里云百炼 → 创建 API-KEY（`sk-` 开头）
 2. 存到本机：
@@ -112,9 +115,6 @@ bash skills/clip-naming/scripts/setup_vision.sh
 
 ## 日常用法（clip-naming）
 
-```
-素材放进：~/Desktop/短视频素材/<日期>/未命名上传/
-双击：    skills/clip-naming/scripts/process.command
-```
+在Codex中说“使用 $clip-naming，开始命名”。未指定产品时先选择磁吸灯、多功能笔、肌理画、多功能锤或新增产品；指定产品就直接加载对应规则。素材位置用接收者自己的当前配置。
 
-跑完：分类结果在 `<日期>/开头|中间|结尾/`，原片自动移到 `_原片存档/`，确认清单是 `_命名确认清单.md`。
+旧 `process.command`、`process_inbox.sh`、`name_and_file.py` 尚未接入新的产品选择与全部规则，不作为当前多产品入口直接运行；本次更新的是对话执行规则，未新增桌面程序或后台监控。

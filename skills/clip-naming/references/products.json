@@ -1,0 +1,30 @@
+{
+  "updated_at": "2026-10-21",
+  "products": [
+    {
+      "id": "magnetic-light",
+      "name": "磁吸灯",
+      "status": "已校准，后续实片继续补充",
+      "rules": "references/naming-磁吸灯.md"
+    },
+    {
+      "id": "multifunction-pen",
+      "name": "多功能笔",
+      "status": "已校准，后续实片继续补充",
+      "rules": "references/naming-多功能笔.md"
+    },
+    {
+      "id": "texture-painting",
+      "name": "肌理画",
+      "status": "已读原表，待逐条实片校准",
+      "rules": "references/naming-肌理画.md"
+    },
+    {
+      "id": "multifunction-hammer",
+      "name": "多功能锤",
+      "status": "待学习",
+      "rules": "references/naming-多功能锤.md"
+    }
+  ],
+  "additional_choice": "新增产品"
+}
