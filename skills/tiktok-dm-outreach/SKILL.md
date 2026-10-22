@@ -26,7 +26,7 @@ metadata:
 先读当前项目已有的AGENTS.md、项目规则及其指定的操作记忆；分享给其他人时以其自己的项目为准，没有这些文件仍可按本技能开始，不依赖原作者的目录或历史记录。当次用户要求优先，旧任务画像、坐标、登录状态及发送授权不自动沿用。
 
 - 紫鸟筛选、PPS或对话点选面板：读 [creator-filters.md](references/creator-filters.md)，复用其中的完整字段快照和面板。PPS不是后台原生项，`4.9 / 5.0`只读左边4.9；选4.5、4.6、4.7、4.8时排除4.9。
-- 紫鸟批量合作邀请、商品佣金、免费样品、重叠处理或邀请成功后的紫鸟私信：读 [invite-configuration.md](references/invite-configuration.md)，复用其中的邀约配置面板；名称及每日批次按中国日期（Asia/Shanghai）；有效期及重叠按后台店铺日期，邀请文本与紫鸟私信独立确认。
+- 紫鸟批量合作邀请、商品佣金、免费样品、重叠处理或邀请成功后的紫鸟私信：读 [invite-configuration.md](references/invite-configuration.md)，复用其中的邀约配置面板及`scripts/ziniao_controls.py`控件辅助函数，避免重复复制旧轮硬编码；名称及每日批次按中国日期（Asia/Shanghai）；有效期及重叠按后台店铺日期，邀请文本与紫鸟私信独立确认。
 - 网页私信：当前优先路径为OpenCLI连接用户已登录Chrome，读 [execution.md](references/execution.md)。
 - 筛选时查看主页/视频：在电脑浏览器打开TikTok网页版，搜索完整用户名并核对身份后查看；不连接手机或打开镜像。
 - 手机镜像建联：读 [phone-outreach.md](references/phone-outreach.md)，核对当次实际可控性及速度验收。
