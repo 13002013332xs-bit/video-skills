@@ -7,6 +7,7 @@ from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
 import hashlib
 import json
+import re
 from pathlib import Path
 import time
 
@@ -87,7 +88,12 @@ def _verify_form(actual, fields, config):
         observed = actual.get(key)
         if key == 'endDate' and isinstance(observed, str):
             observed = observed.replace('/', '-')
-        _require(observed == value, 'Unified form check failed: ' + key)
+        if key == 'message':
+            # Native invitation filtering is normal; never accept lost words.
+            filtered = re.sub(r'[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0E\uFE0F\u200D\u20E3]', '', value)
+            _require(observed in (value, filtered), 'Unified form check failed: message')
+        else:
+            _require(observed == value, 'Unified form check failed: ' + key)
     _require(bool(actual.get('email')), 'System email missing')
     products = actual.get('products', [])
     _require(len(products) == len(config['products']), 'Unified form check failed: product count')
@@ -108,7 +114,8 @@ def _page_50(ui, pause):
 def _read_all_conflicts(ui, pause):
     rows, pages = [], set()
     while True:
-        _page_50(ui, pause)
+        if _page_50(ui, pause).get('empty'):
+            return rows
         page = ui.read_overlap_page()
         _require(page.get('page') is not None and page['page'] not in pages,
                  'Overlap page did not change; stop without moving')
@@ -128,7 +135,19 @@ def _exclude(rows, shop_date):
             try:
                 old_date = date.fromisoformat(row['invitationDate'])
             except (KeyError, ValueError, TypeError):
-                unresolved.add(account)
+                # The user's rule is the month explicitly encoded in 自动批MMDD.
+                # Compare that month directly; do not invent an invitation year.
+                named = re.match(r'^自动批\D*?(0[1-9]|1[0-2])([0-2][0-9]|3[01])(?!\d)', row['invitationName'])
+                if named:
+                    try:
+                        date(2000, int(named[1]), int(named[2]))
+                    except ValueError:
+                        unresolved.add(account)
+                        continue
+                    if int(named[1]) == date.fromisoformat(shop_date).month:
+                        excluded.add(account)
+                else:
+                    unresolved.add(account)
                 continue
             if old_date.strftime('%Y-%m') == shop_date[:7]:
                 excluded.add(account)
@@ -137,48 +156,60 @@ def _exclude(rows, shop_date):
 
 
 def _resolve(ui, state, path, pause):
+    _require(not state.get('overlapMovePending'),
+             'Previous conflict move is uncertain; inspect existing result before continuing')
     summary = ui.overlap_summary()
     original = {_account(a) for a in summary['accounts']}
     excluded = set(state.get('excludedAccounts', []))
     pending_exclusions = excluded & original
     if pending_exclusions:
-        # A persisted exclusion is a decision, not a cached conflict observation.
-        # Reconcile interrupted deletions even if that old conflict disappeared.
         ui.remove_creators(sorted(pending_exclusions))
         summary = ui.overlap_summary()
         _require({_account(a) for a in summary['accounts']} == original - pending_exclusions,
                  'Saved exclusion recipient deletion was not confirmed')
         original -= pending_exclusions
-    if summary['hasConflicts']:
+    expected = original.copy()
+    previous, unchanged = None, 0
+    while summary['hasConflicts']:
+        _require({_account(a) for a in summary['accounts']} == expected,
+                 'Conflict recipient identity changed unexpectedly')
         ui.open_overlaps()
         rows = _read_all_conflicts(ui, pause)
-        new_excluded = _exclude(rows, state['shopDate'])
-        _require(new_excluded <= original, 'Conflict account not in current invitation')
-        ui.close_overlaps()
+        _require(all(_account(r['account']) in expected for r in rows),
+                 'Conflict account not in current invitation')
+        signature = (tuple(sorted(expected)), tuple(sorted(
+            (_account(r['account']), r['invitationName'], r.get('productId', ''),
+             r.get('invitationDate', '')) for r in rows)))
+        unchanged = unchanged + 1 if signature == previous else 0
+        previous = signature
+        _require(unchanged < 2, 'Conflict handling made no progress; preserve current dialog')
+        new_excluded = _exclude(rows, state['shopDate']) - excluded
         if new_excluded:
+            ui.close_overlaps()
             excluded |= new_excluded
             state['excludedAccounts'] = sorted(excluded)
-            _save(path, state)  # Keep the exclusion plan across a native delete failure.
+            _save(path, state)
             ui.remove_creators(sorted(new_excluded))
-        remaining = ui.overlap_summary()
-        expected = original - new_excluded
-        _require({_account(a) for a in remaining['accounts']} == expected,
-                 'Deletion/recipient identity was not confirmed')
-        if remaining['hasConflicts']:
-            # Reopen is a new dialog: prove 50 again, and verify its refreshed rows.
-            ui.open_overlaps()
-            current = _read_all_conflicts(ui, pause)
-            known = {(r['account'], r['invitationName'], r.get('invitationDate')) for r in rows
-                     if _account(r['account']) not in excluded}
-            _require(all((r['account'], r['invitationName'], r.get('invitationDate')) in known
-                         and _account(r['account']) in expected for r in current),
-                     'Reopened conflicts changed; stop before moving')
+            expected -= new_excluded
+        elif not rows:
+            # Explicitly observed zero-conflict dialogs have no pagination.
+            ui.close_overlaps()
+        else:
+            # Keep every configured product; a later batch may expose more rows.
             _page_50(ui, pause)
+            state['overlapMovePending'] = True
+            _save(path, state)
             ui.move_conflicts()
+            # The move confirmation may close while the overlap list remains.
+            state['overlapMovePending'] = False
+            _save(path, state)
+            ui.close_overlaps()  # Reopen a fresh list for the next batch.
         summary = ui.overlap_summary()
-        _require(not summary['hasConflicts'] and
-                 {_account(a) for a in summary['accounts']} == expected,
-                 'Conflicts/recipient count remain unresolved')
+        _require({_account(a) for a in summary['accounts']} == expected,
+                 'Deletion/move recipient identity was not confirmed')
+        state['overlapMovePending'] = False
+        state['conflictPasses'] = state.get('conflictPasses', 0) + 1
+        _save(path, state)
     final = {_account(a) for a in summary['accounts']}
     _require(len(final) == len(summary['accounts']) and not (final & excluded),
              'Duplicate/excluded final recipient identities')

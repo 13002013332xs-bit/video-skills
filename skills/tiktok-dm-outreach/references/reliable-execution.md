@@ -17,6 +17,8 @@
 | 汇总邀请收件人 | 当前实际总数、50/页及完整账号集合一致 | 把当前20行或工具5项预览当全部名单 |
 | 正常连接 | 一次核对身份、URL及卡片，正常就继续 | 无条件重开、重新登录或全套诊断 |
 | 无新增卡片 | 短暂按状态等待后检查末尾/分页；共用ProgressGuard限制无进展循环 | 不断滚动和反复分析相同屏幕 |
+| 邀请正文表情过滤 | 其余正文完整直接继续；文字截断才修复 | 为补表情反复粘贴或更换输入方式 |
+| 重叠分批出现 | 全部商品保持不变；每批50/页，集中排除再移动；关闭残留列表，再重开处理剩余，直到无冲突 | 因新记录/标题数量差异停止；拆商品逐款检查 |
 | 私信弹窗已就绪 | 确认正文及可选名单后分享一次 | 先查看邀请、分享后单人抽查和限额排查 |
 
 旧连接实现仅存档于`references/archive/ziniao-connection-before-agent.md`，只在用户明确审计/迁移旧环境时读取；不是正常入口或自动备用。重要业务规则、状态及历史证据保留。新接口外发适配尚未现场验收，按当前用户范围在后续已授权任务验证，不暗中切回旧接口。
@@ -38,7 +40,7 @@ result = run_invitation(
 
 `state_path` 是使用者私有的本轮JSON，不进入共享包；必备 `roundKey/storeKey/stage/namingDate/shopDate/language/batchNumber`。筛选完成、创建邀约页面就绪后将stage设为 `invitation-form`，不能在页面尚未到达时提前写已完成。命名日期从当轮中国日期来源绑定，店铺日期另取；同轮恢复保持已绑定值。`confirmation` 为 `{roundKey, storeKey, config}`，其中config必须为本轮分别确认的message/ziniaoMessage/contentType/provideSamples/sampleMode/products；产品字段与现有面板一致。不在代码中放店铺、产品、话术、佣金或历史日期默认值。
 
-入口连续负责：原生日期路线→连续填其余字段→统一回读核对一次→当前50/页读取全部重叠→按达人集中排除→重开再次50/页核验→统一移动→发送一次→成功后下一页面动作立即进入消息→已确认正文分享一次→完成状态。10与10.00数值等价，真实差值不放行；实际日期未写入不能通过统一核对。状态原子保存，跨调用恢复才重新核对表单，正常连续执行不增加多轮检查。finalAccounts记录本轮最终名单；恢复已解决重叠阶段时核对当前剩余账号及冲突，发消息准备也核对这份账号集合，人数相同不能代替身份相同。消息灰色/限额为正常跳过，不补人、重试或事后单人抽查。
+入口连续负责：原生日期路线→连续填其余字段→统一回读核对一次→当前50/页读取全部重叠→按达人集中排除→重开再次50/页核验→统一移动，仍有冲突则按同一排除/移动规则继续→发送一次→成功后下一页面动作立即进入消息→已确认正文分享一次→完成状态。10与10.00数值等价，真实差值不放行；实际日期未写入不能通过统一核对。状态原子保存，跨调用恢复才重新核对表单，正常连续执行不增加多轮检查。finalAccounts记录本轮最终名单；恢复已解决重叠阶段时核对当前剩余账号及冲突，发消息准备也核对这份账号集合，人数相同不能代替身份相同。消息灰色/限额为正常跳过，不补人、重试或事后单人抽查。
 
 ## 原生页面适配器契约
 
@@ -52,13 +54,13 @@ result = run_invitation(
 | fill_fields(fields, config) | 连续填名称、正文、按ID定位商品及佣金、内容和样品；邮箱沿用系统、电话留空，不再改日期 |
 | form_snapshot() | 实际name/endDate/message/email/phone/contentType/provideSamples/sampleMode/products；产品为id/standardRate/adEnabled/adRate，开关归一为布尔 |
 | overlap_summary() | 当前 `{hasConflicts: bool, accounts: [完整账号]}`，accounts是本次全部剩余达人，不能只取可见几行 |
-| open_overlaps()/close_overlaps() | 当前重叠窗口原生开/关 |
-| read_page_control() | 当前窗口的ready/pageSize/selector/expanded；同ziniao_controls契约 |
+| open_overlaps()/close_overlaps() | 当前重叠窗口原生开/关；close在列表已关闭时不重复点击 |
+| read_page_control() | 当前窗口的ready/pageSize/selector/expanded；仅明确显示0位且无记录时可返回empty=true，无需分页；同ziniao_controls契约 |
 | click_page_control(selector)/click_50() | 原生点击当前值标签/50选项；不得读行或移动 |
-| read_overlap_page() | `{page, rows, hasNext}`；rows为account/invitationName及可靠invitationDate(ISO)；仅名称MMDD无法可靠确定年份时补看当前已有邀请元数据，不猜 |
+| read_overlap_page() | `{page, rows, hasNext}`；rows为account/invitationName及可靠invitationDate(ISO)；自动批MMDD可按名称中的明确月份与店铺月份比较，不编造年份；其他名称/日期歧义才补看已有元数据 |
 | next_overlap_page() | 翻页且按实际条件等该页数据刷新；不得用固定等待充当已刷新 |
 | remove_creators(accounts) | 只从本次名单集中删除，保留旧邀请 |
-| move_conflicts() | 只移动剩余冲突；出现原生确认则处理当前确认 |
+| move_conflicts() | 只移动剩余冲突；出现原生确认则处理当前确认；只确认移动确认框已关闭，不要求冲突列表同时消失。返回后由调度关闭残留列表，再读状态/重开 |
 | send_invitation()/invitation_outcome() | 原生发送一次；实际成功页才能返回success，其余不得当成功 |
 | open_messages() | 从成功页立即进入向达人发送消息；新标签绑定实际页面，不先查看邀请 |
 | prepare_messages(text) | 填确认正文/开关、选可选达人；回读 `{text, enabled, invitationCard, accounts, selectable, disabled, quota?}`，accounts为全部剩余完整账号（含禁用者），不能只按人数判断身份 |

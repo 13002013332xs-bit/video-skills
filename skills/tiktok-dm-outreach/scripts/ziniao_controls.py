@@ -32,12 +32,14 @@ def ensure_overlap_50(read_control, click_control, click_50, *, pause=time.sleep
     def ready():
         for _ in range(8):
             current = read_control()
-            if current.get('ready'):
+            if current.get('ready') or current.get('empty') is True:
                 return current
             pause(.15)
         raise RuntimeError('Overlap page-size control is not ready')
 
     current = ready()
+    if current.get('empty') is True:
+        return {**current, 'changed': False}
     if current.get('pageSize') in ('50/页', '50/Page'):
         return {**current, 'changed': False}
     for attempt in range(2):

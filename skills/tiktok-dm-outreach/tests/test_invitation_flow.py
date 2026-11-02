@@ -281,7 +281,7 @@ class FlowTests(unittest.TestCase):
         self.assertNotIn('share_messages', self.ui.calls)
 
     def test_ambiguous_auto_date_blocks_moving_or_sending(self):
-        self.ui.rows = [{'account': 'creator_one', 'invitationName': '自动批1129（英语）1'}]
+        self.ui.rows = [{'account': 'creator_one', 'invitationName': '自动批-日期不明'}]
         with self.assertRaisesRegex(RuntimeError, 'Uncertain invitation date'):
             self.run_flow()
         self.assertNotIn('move_conflicts', self.ui.calls)
@@ -339,6 +339,105 @@ class FlowTests(unittest.TestCase):
         self.assertEqual(result['finalCount'], 1)
         self.assertEqual(self.ui.calls.count('remove_creators'), 1)
         self.assertLess(self.ui.calls.index('remove_creators'), self.ui.calls.index('send_invitation'))
+
+
+    def test_filtered_invitation_emoji_needs_no_refill(self):
+        self.confirmed['config']['message'] = 'Hello 🎄\nThank you ❤️'
+        snapshot = self.ui.form_snapshot
+        def filtered():
+            actual = snapshot()
+            actual['message'] = 'Hello \nThank you '
+            return actual
+        self.ui.form_snapshot = filtered
+        self.assertEqual(self.run_flow()['stage'], 'completed')
+        self.assertEqual(self.ui.calls.count('fill_fields'), 1)
+
+    def test_losing_words_after_emoji_is_not_normal_filtering(self):
+        self.confirmed['config']['message'] = 'Hello 🎄 and thank you'
+        snapshot = self.ui.form_snapshot
+        def truncated():
+            actual = snapshot()
+            actual['message'] = 'Hello '
+            return actual
+        self.ui.form_snapshot = truncated
+        with self.assertRaisesRegex(RuntimeError, 'message'):
+            self.run_flow()
+        self.assertNotIn('send_invitation', self.ui.calls)
+
+    def test_system_reveals_more_conflicts_after_move(self):
+        self.ui.rows = [{'account': 'creator_one', 'invitationName': 'manual1130'}]
+        def move():
+            self.assertEqual(self.ui.page_size, '50/页')
+            self.ui.calls.append('move_conflicts')
+            self.ui.rows = ([{'account': 'creator_two', 'invitationName': 'manual1129'}]
+                           if self.ui.calls.count('move_conflicts') == 1 else [])
+        self.ui.move_conflicts = move
+        result = self.run_flow()
+        self.assertEqual(result['finalCount'], 2)
+        self.assertEqual(self.ui.calls.count('move_conflicts'), 2)
+        self.assertEqual(self.ui.calls.count('click_50'), 2)
+        self.assertEqual(len(self.ui.form['products']), 1)
+
+    def test_new_current_month_auto_after_move_is_excluded_before_next_move(self):
+        self.ui.rows = [{'account': 'creator_one', 'invitationName': 'manual1130'}]
+        def move():
+            self.ui.calls.append('move_conflicts')
+            self.ui.rows = [{'account': 'creator_two', 'invitationName': '自动批1129（英语）1',
+                             'invitationDate': '2026-11-29'}]
+        self.ui.move_conflicts = move
+        result = self.run_flow()
+        self.assertEqual(result['excludedAccounts'], ['creator_two'])
+        self.assertEqual(result['finalAccounts'], ['creator_one'])
+        self.assertEqual(self.ui.calls.count('move_conflicts'), 1)
+
+    def test_repeated_identical_conflicts_stop_without_sending(self):
+        self.ui.rows = [{'account': 'creator_one', 'invitationName': 'manual1130'}]
+        self.ui.move_conflicts = lambda: self.ui.calls.append('move_conflicts')
+        with self.assertRaisesRegex(RuntimeError, 'no progress'):
+            self.run_flow()
+        self.assertEqual(self.ui.calls.count('move_conflicts'), 2)
+        self.assertNotIn('send_invitation', self.ui.calls)
+
+    def test_named_auto_month_does_not_need_an_invented_year(self):
+        self.ui.rows = [{'account': 'creator_one', 'invitationName': '自动批1129（英语）1'}]
+        self.assertEqual(self.run_flow()['excludedAccounts'], ['creator_one'])
+
+    def test_auto_name_with_product_prefix_keeps_explicit_month(self):
+        self.ui.rows = [{'account': 'creator_one', 'invitationName': '自动批-示例商品1129（英语）1'}]
+        self.assertEqual(self.run_flow()['excludedAccounts'], ['creator_one'])
+
+    def test_retained_conflict_dialog_is_closed_before_reopening_next_batch(self):
+        self.ui.rows = [{'account': 'creator_one', 'invitationName': 'manual1130'}]
+        retained = {'open': False}
+        open_original, close_original = self.ui.open_overlaps, self.ui.close_overlaps
+        def open_dialog():
+            self.assertFalse(retained['open'], 'must close retained list before reopening')
+            retained['open'] = True
+            open_original()
+        def close_dialog():
+            retained['open'] = False
+            close_original()
+        def move():
+            self.ui.calls.append('move_conflicts')
+            self.ui.rows = ([{'account': 'creator_two', 'invitationName': 'manual1129'}]
+                           if self.ui.calls.count('move_conflicts') == 1 else [])
+            # Confirmation closes, but the refreshed overlap list stays open.
+        self.ui.open_overlaps, self.ui.close_overlaps = open_dialog, close_dialog
+        self.ui.move_conflicts = move
+        self.assertEqual(self.run_flow()['finalCount'], 2)
+        self.assertEqual(self.ui.calls.count('move_conflicts'), 2)
+        self.assertEqual(self.ui.calls.count('close_overlaps'), 2)
+
+    def test_explicit_empty_dialog_needs_no_pagination_or_move(self):
+        self.ui.rows = [{'account': 'creator_one', 'invitationName': 'manual1130'}]
+        self.ui.read_page_control = lambda: {'empty': True, 'ready': False}
+        def close():
+            self.ui.calls.append('close_overlaps')
+            self.ui.rows = []
+        self.ui.close_overlaps = close
+        self.assertEqual(self.run_flow()['finalCount'], 2)
+        self.assertNotIn('read_overlap_page', self.ui.calls)
+        self.assertNotIn('move_conflicts', self.ui.calls)
 
 
 if __name__ == '__main__':
