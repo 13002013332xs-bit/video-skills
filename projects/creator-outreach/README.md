@@ -36,3 +36,8 @@
 紫鸟达人操作统一走`zn-open-eco agent tool`，共用`scripts/ziniao_agent.py`；正常执行只读`references/ziniao-connection.md`的当前成功路径。旧接口及失败尝试仅供定向维护，不自动回退。新接口选人/商品/冲突已现场验证，整段外发仍须在获得授权的真实轮次验收。
 
 正常启动直接复用当前已验证路径，只读本轮必要规则和状态；失败尝试归档隔离，异常时按需查，不混入成功步骤或自动回退。
+
+
+## 当前规则版本
+
+`2026-11-02-v4`：完整紫鸟流程只在`skills/tiktok-dm-outreach/references/creator-workflow.md`维护。SKILL.md按阶段路由，旧接口说明已退出技能与分享包；正常启动不读取历史故障或旧轮脚本。仅准备/完整发送分别按当轮范围执行。
